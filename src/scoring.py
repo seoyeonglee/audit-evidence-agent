@@ -107,15 +107,12 @@ def assess_control(
     evidence_index: pd.DataFrame,
     evidence_texts: dict[str, str],
 ) -> Assessment:
-    candidates = []
+    required_type = normalize(control["required_evidence_type"])
+    matching = evidence_index[
+        evidence_index["evidence_type"].apply(normalize) == required_type
+    ]
 
-    for _, evidence_row in evidence_index.iterrows():
-        evidence_id = str(evidence_row["evidence_id"])
-        text = evidence_texts.get(evidence_id, "")
-        candidate = score_candidate(control, evidence_row, text)
-        candidates.append(candidate)
-
-    if not candidates:
+    if matching.empty:
         return Assessment(
             control_id=str(control["control_id"]),
             best_evidence_id="",
@@ -125,14 +122,23 @@ def assess_control(
             exception_terms=[],
             score=0,
             status="missing",
-            reasoning="No evidence files were available for assessment.",
+            reasoning=(
+                "No evidence item matched required evidence type "
+                f"'{control['required_evidence_type']}'."
+            ),
         )
+
+    candidates = []
+    for _, evidence_row in matching.iterrows():
+        evidence_id = str(evidence_row["evidence_id"])
+        text = evidence_texts.get(evidence_id, "")
+        candidate = score_candidate(control, evidence_row, text)
+        candidates.append(candidate)
 
     best = max(
         candidates,
         key=lambda x: (
             x["score"],
-            x["type_match"],
             x["period_match"],
             x["keyword_coverage"],
         ),
