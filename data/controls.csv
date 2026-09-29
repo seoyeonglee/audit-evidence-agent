@@ -1,0 +1,7 @@
+control_id,title,requirement,required_evidence_type,target_period,keywords
+AC-01,Quarterly privileged access review,Privileged access must be reviewed and approved each quarter with unnecessary access revoked,access_review,Q3-2026,privileged|review|approved|revoked
+CH-01,Production change management,Production changes must show approval testing and implementation evidence,change_ticket,Q3-2026,change|approval|testing|production
+BC-01,Backup restoration testing,Critical backups must be restored and recovery results documented,restore_test,Q3-2026,backup|restore|successful|recovery
+TP-01,Third-party security review,Critical vendors must receive periodic security assessment and approval,vendor_review,Q3-2026,vendor|security|assessment|approved
+HR-01,Termination access revocation,Access for terminated users must be revoked within 24 hours and reviewed,termination_review,Q3-2026,terminated|revoked|24 hours|access
+LG-01,Security log monitoring,Security logs must be monitored with alerting and defined retention,logging_review,Q3-2026,log|monitoring|alert|retention
