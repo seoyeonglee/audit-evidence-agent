@@ -1,0 +1,16 @@
+Q3 2026 Privileged Access Review
+
+The Security Operations team completed the quarterly privileged access review for production administrator roles.
+
+Scope:
+- privileged administrator groups
+- production database administrator access
+- cloud platform administrator roles
+
+Results:
+- 18 privileged accounts reviewed
+- manager and control owner review completed
+- all retained access approved
+- 2 unnecessary entitlements revoked
+
+The review was completed on 2026-09-20 and evidence of approval was retained.
