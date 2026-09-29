@@ -1,0 +1,10 @@
+Termination Access Review - Q3 2026
+
+A sample of terminated workforce accounts was reviewed.
+
+For the sampled population:
+- terminated-user access was revoked
+- account disablement was confirmed
+- access review evidence was retained
+
+One sample was overdue and exceeded the expected 24 hours before full revocation was confirmed.
