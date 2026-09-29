@@ -1,0 +1,12 @@
+Production Change Sample - CHG-2026-0912
+
+Change: authentication service configuration update
+Environment: production
+
+Evidence:
+- change request documented
+- technical testing completed in staging
+- production approval recorded before implementation
+- deployment completed during approved window
+
+One monitoring follow-up item remains pending remediation. The change itself was implemented successfully.
