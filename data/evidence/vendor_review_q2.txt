@@ -1,0 +1,9 @@
+Vendor Security Review - Q2 2026
+
+Vendor: Synthetic Cloud Services
+
+A security assessment was performed using the standard third-party questionnaire.
+
+The assessment covered security governance and incident response.
+
+The vendor review remains open because final approval is pending remediation of one documentation item.
