@@ -25,7 +25,7 @@ An engineering reference project that makes its decisions inspectable: tenant bo
 | [Mobile view](docs/screenshots/mobile.png) | Responsive layout checked against document overflow |
 | [Browser test source](frontend/tests/operations.spec.ts) | Submission → processing → provenance inspection → approval; role and tenant boundaries |
 
-The reviewer can inspect all requests in the synthetic organization. Switch to **Owner · Alex Rivera**, submit the sample for the access review, then switch to **Reviewer · Maya Chen**, process the queue, inspect sources and approve with feedback. **Vendor · Jordan Park** sees the vendor request; **Other org reviewer · Nora Patel** sees a different tenant. Approved records cannot accept more submissions. The demo seeds a fixed request set and has no reset/supersession UI; use a fresh local database to repeat the complete scenario. Free Render services may need time to wake up and redeploys can reset demo data.
+The reviewer can inspect all requests in the synthetic organization. Switch to **Owner · Alex Rivera**, submit the sample for the access review, then switch to **Reviewer · Maya Chen**, process the queue, inspect sources and approve with feedback. **Vendor · Jordan Vale** sees the vendor request; **Other org reviewer · Nora Kim** sees a different tenant. Approved records cannot accept more submissions. The demo seeds a fixed request set and has no reset/supersession UI; use a fresh local database to repeat the complete scenario. Free Render services may need time to wake up and redeploys can reset demo data.
 
 ## Architecture with explicit boundaries
 
