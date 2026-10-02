@@ -366,3 +366,8 @@ def reset_reviews():
     state = build_state()
     state["reviews"].clear()
     return {"status": "ok", "reviews": 0}
+
+# v1 remains a public synthetic RAG sandbox. v2 has its own durable domain.
+from src.platform.routes import create_router
+import os
+app.include_router(create_router(demo_enabled=os.environ.get('DEMO_MODE', '1') == '1'))

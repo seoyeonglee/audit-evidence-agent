@@ -27,7 +27,7 @@
 
 body {
   margin: 0;
-  min-width: 1160px;
+  min-width: 320px;
   min-height: 100vh;
   background:
     radial-gradient(circle at 75% -10%, rgba(63, 105, 137, .13), transparent 27%),
@@ -981,7 +981,7 @@ footer {
 }
 
 @media (max-width: 1300px) {
-  body { min-width: 1050px; }
+  body { min-width: 320px; }
   .eval-strip { grid-template-columns: 230px repeat(6, 1fr); }
   .layout { grid-template-columns: 240px 1fr; }
   .main-grid { grid-template-columns: minmax(560px, 1.45fr) minmax(300px, .75fr); }

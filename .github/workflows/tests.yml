@@ -1,9 +1,9 @@
 name: tests
-
 on:
   push:
   pull_request:
-
+permissions:
+  contents: read
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -11,23 +11,69 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-      - name: Install
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-      - name: Test
-        run: python -m pytest -q
-
-  frontend:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - run: python -m pytest -q --cov=src/platform --cov-report=xml --junitxml=backend-results.xml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-evidence
+          path: |
+            backend-results.xml
+            coverage.xml
+  postgres-security:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: evidence
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_POSTGRES_URL: postgresql+psycopg://postgres:postgres@localhost:5432/evidence
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - run: python -m pytest tests/platform/test_postgres.py -q --junitxml=postgres-results.xml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: postgres-rls-evidence
+          path: postgres-results.xml
+  frontend-browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-      - run: npm install
-      - run: npm run build
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: pip install -r requirements.txt
+      - run: npm ci && npm run build
+        working-directory: frontend
+      - run: npx playwright install --with-deps chromium && npx playwright test
+        working-directory: frontend
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-workflow-evidence
+          path: |
+            docs/screenshots/
+            docs/reports/browser-tests.json
+            frontend/test-results/
