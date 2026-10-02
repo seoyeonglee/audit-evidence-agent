@@ -2,50 +2,112 @@
 
 ## Purpose
 
-This project demonstrates how audit evidence can be organized and pre-assessed before human review.
+This project demonstrates an AI-assisted audit evidence workflow. It does not
+issue audit opinions or autonomously determine control effectiveness. Its job
+is to organize evidence, surface gaps and exceptions, ground AI conclusions in
+retrieved sources, and route the result to a human reviewer.
 
-It is deliberately **not** an autonomous audit-opinion engine. The output helps prioritize evidence review; auditor judgment remains necessary.
+## Pipeline
 
-## Assessment dimensions
+1. **Evidence intake** — load the control catalog, evidence metadata, and
+   synthetic evidence documents.
+2. **Control interpretation** — use the stated requirement, expected evidence
+   type, target period, and synthetic guidance as review context.
+3. **Deterministic validation** — check evidence type, period, keyword
+   coverage, and explicit exception terms.
+4. **RAG retrieval** — retrieve relevant control, evidence, and guidance
+   chunks for the current control.
+5. **Agent reasoning** — produce a structured decision containing status,
+   confidence, evidence IDs, citations, missing evidence, exception language,
+   and concise reasoning.
+6. **Grounding validation** — reject citations that were not retrieved and
+   flag evidence IDs that do not exist in the evidence index.
+7. **Human review** — keep decisions pending until a reviewer records approve,
+   reject, or needs-changes feedback.
+8. **Trace storage** — retain the sources, baseline, AI output, and validation
+   checks as append-only events.
+9. **Evaluation** — compare results against a synthetic expected-output set.
 
-### Evidence type
-A control is only assessed against evidence items of the required type. If no item of that type exists, the status is `missing`.
+## Status semantics
 
-### Period
-Evidence receives credit when its documented period matches the control's target period.
+- **supported** — available evidence supports the pre-review requirement and
+  no material exception was detected by the current checks.
+- **partial** — evidence is relevant but incomplete, out of period, or contains
+  an exception that requires human attention.
+- **gap** — evidence exists but does not sufficiently support the requirement.
+- **missing** — the required evidence type was not provided.
 
-### Keyword coverage
-Control-specific keywords provide a transparent proxy for whether the evidence discusses expected review concepts.
+These are pre-review labels, not audit conclusions.
 
-### Exception terms
-Explicit phrases such as `failed`, `overdue`, `missing`, and `pending remediation` reduce the score and remain visible in the reasoning trail.
+## RAG and citations
 
-## Status bands
+The repository deliberately uses synthetic control guidance rather than
+copying proprietary standards or employer workpapers. Retrieved chunks receive
+stable source IDs such as:
 
-- **supported**: score >= 80
-- **partial**: score 50–79
-- **gap**: score below 50
-- **missing**: required evidence type not provided
+- `control:AC-01`
+- `evidence:E001`
+- `kb:control_guidance:access-governance`
 
-## Why deterministic first?
+The agent may cite only source IDs returned by retrieval. Post-generation
+validation checks that every citation was actually in context.
 
-A deterministic baseline makes it easy to:
-- reproduce results
-- test logic
-- inspect why evidence was selected
-- identify where an LLM would add value
+## Hallucination controls
 
-A future LLM layer could summarize evidence, extract dates/owners, or draft workpaper language, while retaining this deterministic layer for validation and guardrails.
+The implementation uses several controls rather than relying on prompting
+alone:
+
+- retrieved-context-only instructions
+- allow-listed citations
+- validation of evidence IDs against the source index
+- deterministic baseline retained beside the AI result
+- explicit missing-evidence output
+- human sign-off required
+- append-only model and reviewer traces
+
+The evaluation harness reports a **hallucination proxy rate** based on whether
+predictions remain grounded in valid citations/evidence IDs. It is a
+portfolio metric, not a claim that all semantic hallucinations are detected.
+
+## Evaluation metrics
+
+The synthetic evaluation set tracks:
+
+- exact status accuracy
+- exception precision
+- exception recall
+- false-positive rate
+- citation-valid rate
+- grounded-result rate
+- hallucination proxy rate
+
+The dataset is intentionally small and transparent. Production evaluation
+would require a larger expert-labeled corpus, per-control error analysis,
+calibration, adversarial evidence, and regression suites.
+
+## Human-in-the-loop
+
+Reviewer actions are stored separately from the model result:
+
+- `approve`
+- `reject`
+- `needs_changes`
+
+Reviewer feedback can later be used for error analysis or supervised
+evaluation. This project does not automatically fine-tune on reviewer input.
 
 ## Limitations
 
-Real audits require much more than document keyword coverage. Production use would need:
+Production audit systems additionally require:
 - evidence authenticity and provenance
-- population completeness
-- sampling methodology
+- population completeness and sampling methodology
 - control design and operating-effectiveness testing
 - auditor independence
-- contradiction resolution
-- secure document handling
+- secure document handling and tenant isolation
 - retention and access controls
-- human review and sign-off
+- model and prompt versioning
+- privacy impact assessment
+- secrets management
+- authorization and role-based review workflows
+- robust document parsing and OCR controls
+- expert-labeled evaluation at meaningful scale
