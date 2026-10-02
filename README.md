@@ -2,49 +2,195 @@
 
 [![tests](https://github.com/seoyeonglee/audit-evidence-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/seoyeonglee/audit-evidence-agent/actions/workflows/tests.yml)
 
-A deterministic audit-evidence review pipeline that maps evidence to controls, checks period and content coverage, highlights exception terms, and produces a transparent control-by-control assessment.
+**AI-assisted audit evidence review with RAG, deterministic guardrails, human review, evaluation, and end-to-end traceability.**
 
-> All controls, evidence files, names, and scenarios are synthetic. This project does not contain employer workpapers, customer data, internal audit findings, or proprietary control logic.
+This project models a realistic enterprise workflow: evidence is ingested, mapped to control requirements, retrieved into an agent context, evaluated for sufficiency and exceptions, validated for grounding, and routed to a human reviewer before any decision is finalized.
 
-## Why this project
+> All controls, evidence files, names, and scenarios are synthetic. This repository contains no employer workpapers, customer data, internal audit findings, proprietary control logic, or copyrighted control-standard text.
 
-Evidence collection is often repetitive before the real audit judgment begins. Reviewers need to answer basic questions such as:
+## What this demonstrates
 
-- Did the requested evidence arrive?
-- Is it the right type of evidence?
-- Does it cover the target period?
-- Does it discuss the expected control concepts?
-- Does it contain obvious exception language?
-- Which controls need human attention first?
-
-This project automates that **pre-review organization layer** while keeping the scoring logic visible.
+- **Agentic workflow** — control interpretation, evidence validation, missing-evidence detection, and exception generation
+- **RAG** — retrieval across control definitions, evidence documents, and synthetic control guidance
+- **Grounded citations** — generated citations are checked against the exact retrieved context
+- **Deterministic guardrails** — reproducible type/period/keyword/exception checks remain visible beside AI reasoning
+- **Human-in-the-loop** — every AI result starts as pending and supports approve / reject / needs-changes feedback
+- **Evaluation** — expected-output dataset with accuracy, precision, recall, false-positive, citation, grounding, and hallucination-proxy metrics
+- **Traceability** — requirement → retrieved sources → baseline checks → AI result → validation → reviewer feedback
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    A[Control Catalog] --> D[Evidence Agent]
-    B[Evidence Index] --> D
-    C[Evidence Files] --> D
-    D --> E[Type / Period Match]
-    E --> F[Keyword Coverage]
-    F --> G[Exception Scan]
-    G --> H[Transparent Score]
-    H --> I[Control Assessment]
+    A[Control Catalog] --> G[Deterministic Guardrail]
+    B[Evidence Intake] --> G
+    C[Synthetic Control Guidance] --> R[RAG Retriever]
+    A --> R
+    B --> R
+    G --> X[Agent Orchestrator]
+    R --> X
+    X --> L{Reasoner}
+    L -->|Offline / CI| H[Heuristic Agent]
+    L -->|Optional| O[LLM Agent]
+    H --> V[Citation + Evidence ID Validation]
+    O --> V
+    V --> D[Decision / Missing Evidence / Exception]
+    D --> U[Human Reviewer]
+    U --> F[Approve / Reject / Needs Changes]
+    X --> T[Trace Log]
+    F --> T
+    D --> E[Evaluation Harness]
 ```
 
-## Synthetic example
+The local demo uses TF-IDF vectors so it runs deterministically without external infrastructure. The retrieval interface is deliberately designed so a production vector store such as **pgvector, Qdrant, Pinecone, or Elasticsearch/OpenSearch** can replace it.
 
-The checked-in audit package contains six controls and deliberately mixed evidence quality:
+## Agent workflow
 
-- quarterly privileged-access review — strong support
-- production change sample — supported, but contains a remediation term
-- backup restore test — strong support
-- third-party review — partial because it is out of period and incomplete
-- termination review — supported with an overdue exception noted
-- security logging review — required evidence is missing
+For each control the agent:
 
-The output keeps both the score and the reasoning trail visible.
+1. reads the control requirement and expected evidence type;
+2. runs deterministic evidence checks;
+3. retrieves relevant control, evidence, and guidance chunks;
+4. asks either the offline reasoner or optional LLM to produce a structured assessment;
+5. validates citations against retrieved sources;
+6. validates evidence IDs against the source index;
+7. records missing evidence and explicit exceptions;
+8. stores a trace of the complete decision path;
+9. marks the result **pending human review**.
+
+A high score cannot silently hide an explicit exception. Exception-bearing evidence is routed to human review as at least a `partial` result.
+
+## RAG corpus
+
+The demo indexes three source classes:
+
+- `control:<control-id>` — control requirement and expected evidence
+- `evidence:<evidence-id>` — synthetic submitted evidence
+- `kb:<document>:<section>` — synthetic control-review guidance
+
+The knowledge base intentionally describes generic review expectations instead of reproducing ISO, SOC 2, or other proprietary standard text.
+
+## Human-in-the-loop
+
+AI output is never treated as the final audit conclusion.
+
+Reviewer events are append-only and support:
+
+- `approve`
+- `reject`
+- `needs_changes`
+
+Example:
+
+```bash
+python -m src.review \
+  --run-id run-example \
+  --control-id CH-01 \
+  --decision needs_changes \
+  --reviewer reviewer@example \
+  --feedback "Confirm the open remediation item before sign-off."
+```
+
+The original model output remains intact so reviewer feedback can be analyzed separately.
+
+## Evaluation
+
+The checked-in synthetic dataset defines expected statuses for the demo controls.
+
+Metrics include:
+
+- exact status accuracy
+- exception precision
+- exception recall
+- false-positive rate
+- citation-valid rate
+- grounded-result rate
+- hallucination proxy rate
+
+The hallucination proxy is intentionally conservative: a result is ungrounded if it references a citation that was not retrieved or an evidence ID that does not exist. It does **not** claim to detect every semantic hallucination.
+
+## Run locally
+
+### Install
+
+```bash
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 1. Deterministic baseline
+
+```bash
+python -m src.agent
+```
+
+Produces:
+
+- `output/control_assessment.csv`
+- `output/summary.json`
+
+### 2. Agentic RAG review — offline
+
+```bash
+python -m src.agentic --provider heuristic
+```
+
+Produces:
+
+- `output/agent_decisions.json`
+- `output/trace.jsonl`
+
+This mode is reproducible and used in CI.
+
+### 3. Evaluate
+
+```bash
+python -m src.evaluate
+```
+
+Produces:
+
+- `output/evaluation.json`
+
+### 4. Optional LLM reasoning
+
+Set an API key locally and run:
+
+```bash
+export OPENAI_API_KEY="..."
+python -m src.agentic --provider openai
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:OPENAI_API_KEY="..."
+python -m src.agentic --provider openai
+```
+
+No API key is committed to the repository. The LLM receives only the synthetic retrieved context.
+
+### 5. Tests
+
+```bash
+python -m pytest -q
+```
+
+## Example scenario
+
+The synthetic package includes:
+
+| Control | Scenario |
+|---|---|
+| AC-01 | privileged-access review with approval and revocation evidence |
+| CH-01 | production change with an open remediation item |
+| BC-01 | successful backup restoration test |
+| TP-01 | vendor review that is out of period and still open |
+| HR-01 | termination review containing an overdue revocation |
+| LG-01 | required logging-review evidence is missing |
+
+This mix makes the evaluation set cover supported, partial, exception-bearing, out-of-period, and missing-evidence paths.
 
 ## Project structure
 
@@ -53,78 +199,64 @@ audit-evidence-agent/
 ├── data/
 │   ├── controls.csv
 │   ├── evidence_index.csv
-│   └── evidence/
-│       ├── access_review_q3.txt
-│       ├── backup_restore_test.txt
-│       ├── change_ticket_sample.txt
-│       ├── termination_review_q3.txt
-│       └── vendor_review_q2.txt
+│   ├── evidence/
+│   └── knowledge_base/
+├── eval/
+│   └── expected_outputs.csv
 ├── docs/
 │   ├── architecture.md
 │   └── methodology.md
-├── output/
-│   ├── control_assessment.csv
-│   └── summary.json
 ├── src/
-│   ├── agent.py
+│   ├── agent.py          # deterministic baseline
+│   ├── agentic.py        # RAG + agent orchestration
+│   ├── evaluate.py       # evaluation harness
+│   ├── llm.py            # offline + optional LLM reasoners
 │   ├── loaders.py
-│   └── scoring.py
+│   ├── retrieval.py
+│   ├── review.py         # human feedback events
+│   ├── schemas.py
+│   ├── scoring.py
+│   └── trace.py
 ├── tests/
 ├── requirements.txt
 └── README.md
 ```
 
-## Run it
+## Reliability principles
 
-Windows:
+This project treats enterprise AI reliability as a system-design problem, not a prompt-only problem.
 
-```powershell
-py -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe src\agent.py
-.\.venv\Scripts\python.exe -m pytest -q
-```
+- deterministic checks remain available as guardrails
+- source IDs are explicit and stable
+- citations are allow-listed after generation
+- missing evidence cannot be silently replaced by unrelated documents
+- model decisions and reviewer actions are stored separately
+- exception-bearing results require human attention
+- synthetic expected outputs make regressions measurable
 
-macOS/Linux:
+## Production extensions
 
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python src/agent.py
-python -m pytest -q
-```
+A production version would add:
 
-## Assessment logic
-
-The deterministic score considers:
-
-- required evidence type
-- target-period match
-- control-specific keyword coverage
-- explicit exception terms such as `overdue` or `pending remediation`
-
-If the required evidence type does not exist, the control is marked `missing` rather than being matched to an unrelated document.
-
-## Statuses
-
-- **supported** — score >= 80
-- **partial** — score 50–79
-- **gap** — score < 50
-- **missing** — required evidence type absent
-
-## Why no LLM dependency?
-
-The first version is intentionally deterministic. That makes the result reproducible, testable, and easy to audit.
-
-A future LLM layer could add document summarization, date/owner extraction, contradiction detection, or draft workpaper language while retaining this layer as a validation guardrail.
+- document parsing and OCR pipelines
+- embeddings + production vector database
+- RBAC and tenant isolation
+- encrypted evidence storage
+- secrets management
+- prompt/model/version lineage
+- queue-based asynchronous processing
+- reviewer UI and workflow state machine
+- expert-labeled evaluation datasets
+- adversarial and regression test suites
+- privacy, retention, and deletion controls
+- observability for latency, retrieval quality, token usage, and error rates
 
 ## Important limitation
 
-This tool does **not** issue audit opinions or determine control effectiveness. Evidence sufficiency, sampling, authenticity, design effectiveness, operating effectiveness, and final conclusions remain human audit responsibilities.
+This tool does **not** issue audit opinions, certify compliance, or determine control effectiveness. Evidence authenticity, population completeness, sampling, design effectiveness, operating effectiveness, and final audit conclusions remain human responsibilities.
 
-See [`docs/methodology.md`](docs/methodology.md).
+See [architecture](docs/architecture.md) and [methodology](docs/methodology.md).
 
 ## Tech
 
-Python · Pandas · Audit Analytics · Evidence Review · Control Testing · Deterministic Agent
+Python · RAG · LLM APIs · TF-IDF Vector Retrieval · Structured Outputs · Human-in-the-Loop · Evaluation · Audit Analytics · Traceability

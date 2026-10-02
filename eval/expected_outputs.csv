@@ -1,0 +1,7 @@
+control_id,expected_status,expected_exception
+AC-01,supported,false
+CH-01,partial,true
+BC-01,supported,false
+TP-01,partial,true
+HR-01,partial,true
+LG-01,missing,true
