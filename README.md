@@ -1,283 +1,145 @@
-# Audit Evidence Agent
+# Audit Evidence / Operations
 
 [![tests](https://github.com/seoyeonglee/audit-evidence-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/seoyeonglee/audit-evidence-agent/actions/workflows/tests.yml)
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Control%2F%2FRoom-76E2B8)](https://seoyoung-audit-evidence.onrender.com)
-[![API Docs](https://img.shields.io/badge/API-FastAPI-009688)](https://seoyoung-audit-evidence-api.onrender.com/docs)
+[![Live workspace](https://img.shields.io/badge/Live-Evidence_Operations-8ee1bc)](https://seoyoung-audit-evidence.onrender.com)
+[![API](https://img.shields.io/badge/API-FastAPI-009688)](https://seoyoung-audit-evidence-api.onrender.com/docs)
 
-**[Open Live Control Room](https://seoyoung-audit-evidence.onrender.com)** · **[Open Swagger API](https://seoyoung-audit-evidence-api.onrender.com/docs)**
+**Turn submitted documents into a source-backed evidence record, with durable processing and accountable human approval.**
 
-**AI-assisted audit evidence review with RAG, deterministic guardrails, human review, evaluation, and end-to-end traceability.**
+An engineering reference project that makes its decisions inspectable: tenant boundaries in the database, retryable jobs, exact source lineage, immutable approvals, and tests that exercise failure and concurrency. The original retrieval and agent experiment remains available in **RAG Lab**.
 
-This project models a realistic enterprise workflow: evidence is ingested, mapped to control requirements, retrieved into an agent context, evaluated for sufficiency and exceptions, validated for grounding, and routed to a human reviewer before any decision is finalized.
+**[Open workspace](https://seoyoung-audit-evidence.onrender.com)** · **[API reference](https://seoyoung-audit-evidence-api.onrender.com/docs)** · **[Verified CI run](https://github.com/seoyeonglee/audit-evidence-agent/actions/runs/36996099394)** · **[Implementation & review PR](https://github.com/seoyeonglee/audit-evidence-agent/pull/2)**
 
-> All controls, evidence files, names, and scenarios are synthetic. This repository contains no employer workpapers, customer data, internal audit findings, proprietary control logic, or copyrighted control-standard text.
+> All people, organizations, documents and controls are fictional. This repository demonstrates implemented engineering decisions; it does not claim real customer deployments, employer work, or historical team leadership. The public deployment explicitly runs the SQLite demo profile. PostgreSQL isolation is verified separately in CI.
 
-## Live Control//Room
+## See the working system
 
-[![Audit Evidence Agent live control room](docs/control-room.png)](https://seoyoung-audit-evidence.onrender.com)
+[![Evidence request, verified source fields, persisted worker job and review timeline](docs/screenshots/operations.png)](https://seoyoung-audit-evidence.onrender.com)
 
-The deployed interface turns the repository into an interactive review workflow rather than a static model demo:
+*Actual Playwright capture after submitting and processing a document. Counts, fields, job states and audit events come from the API.*
 
-- review a queue of synthetic controls and AI-assisted assessments;
-- inspect deterministic type / period / keyword / exception guardrails;
-- open retrieved RAG sources and see exactly which sources were cited;
-- compare confidence, baseline score, grounding, and citation validation;
-- inspect primary evidence and missing-evidence conditions;
-- record **Approve / Needs Changes / Reject** human-review decisions;
-- follow the full lineage from requirement → guardrails → retrieval → agent → validation → reviewer;
-- view evaluation metrics for accuracy, precision, recall, grounding, citation validity, and hallucination proxy.
+| Inspect | What to look for |
+|---|---|
+| [Approved record](docs/screenshots/approved-record.png) | Reviewer feedback, locked approval and its append-only event |
+| [External vendor view](docs/screenshots/vendor-scope.png) | Assigned request only; reviewer actions unavailable |
+| [Mobile view](docs/screenshots/mobile.png) | Responsive layout checked against document overflow |
+| [Browser test source](frontend/tests/operations.spec.ts) | Submission → processing → provenance inspection → approval; role and tenant boundaries |
 
-The public deployment intentionally uses the offline heuristic reasoner and local TF-IDF retrieval so the demo is reproducible and runs without paid model calls. The optional OpenAI reasoner remains available in the repository for local experimentation.
+The reviewer can inspect all requests in the synthetic organization. Switch to **Owner · Alex Rivera**, submit the sample for the access review, then switch to **Reviewer · Maya Chen**, process the queue, inspect sources and approve with feedback. **Vendor · Jordan Park** sees the vendor request; **Other org reviewer · Nora Patel** sees a different tenant. Approved records cannot accept more submissions. The demo seeds a fixed request set and has no reset/supersession UI; use a fresh local database to repeat the complete scenario. Free Render services may need time to wake up and redeploys can reset demo data.
 
-## What this demonstrates
-
-- **Agentic workflow** — control interpretation, evidence validation, missing-evidence detection, and exception generation
-- **RAG** — retrieval across control definitions, evidence documents, and synthetic control guidance
-- **Grounded citations** — generated citations are checked against the exact retrieved context
-- **Deterministic guardrails** — reproducible type/period/keyword/exception checks remain visible beside AI reasoning
-- **Human-in-the-loop** — every AI result starts as pending and supports approve / reject / needs-changes feedback
-- **Evaluation** — expected-output dataset with accuracy, precision, recall, false-positive, citation, grounding, and hallucination-proxy metrics
-- **Traceability** — requirement → retrieved sources → baseline checks → AI result → validation → reviewer feedback
-
-## Architecture
+## Architecture with explicit boundaries
 
 ```mermaid
-flowchart LR
-    A[Control Catalog] --> G[Deterministic Guardrail]
-    B[Evidence Intake] --> G
-    C[Synthetic Control Guidance] --> R[RAG Retriever]
-    A --> R
-    B --> R
-    G --> X[Agent Orchestrator]
-    R --> X
-    X --> L{Reasoner}
-    L -->|Offline / CI| H[Heuristic Agent]
-    L -->|Optional| O[LLM Agent]
-    H --> V[Citation + Evidence ID Validation]
-    O --> V
-    V --> D[Decision / Missing Evidence / Exception]
-    D --> U[Human Reviewer]
-    U --> F[Approve / Reject / Needs Changes]
-    X --> T[Trace Log]
-    F --> T
-    D --> E[Evaluation Harness]
+flowchart TD
+    UI["React workspace"] --> API["FastAPI / token identity"]
+    API --> AUTH["Role and assignment checks"]
+    AUTH --> INTAKE["Atomic document + job intake"]
+    INTAKE --> DB["Relational store / tenant scope"]
+    WORKER["Leased SQL worker"] <--> DB
+    WORKER --> EXTRACT["Typed extraction + exact sources"]
+    EXTRACT --> RECORD["Canonical fields + exceptions"]
+    RECORD --> DB
+    AUTH --> REVIEW["Version-checked human review"]
+    REVIEW --> DB
+    DB --> AUDIT["Append-only event hash chain"]
 ```
 
-The local demo uses TF-IDF vectors so it runs deterministically without external infrastructure. The retrieval interface is deliberately designed so a production vector store such as **pgvector, Qdrant, Pinecone, or Elasticsearch/OpenSearch** can replace it.
+| Decision | Implemented behavior | Why / tradeoff |
+|---|---|---|
+| [Relational canonical record](docs/adr/001-relational-canonical-records.md) | Document values retain source IDs, digest, quote and line; conflicts block approval | Reviewers can trace facts rather than trust a summary |
+| [Authorization + PostgreSQL RLS](docs/adr/002-authorization-and-rls.md) | Token-derived tenant, role/assignment checks, transaction-local DB context | Application checks and DB isolation; SQLite has application checks only |
+| [Modular monolith](docs/adr/003-modular-monolith.md) | Separate intake, extraction, worker and review modules | Inspectable boundaries without a premature service fleet |
+| [Transactional SQL queue](docs/adr/004-transactional-sql-queue.md) | Atomic intake, tenant-wide idempotency, SKIP LOCKED claims, leases, capped retry and dead letter | Avoid a dual-write gap; database contention remains a measured tradeoff |
+| [Source facts + human review](docs/adr/005-source-facts-and-human-review.md) | Unsupported/missing/conflicting fields and open exceptions prevent approval | Explicit policy checks before a human decision |
+| [Audit history](docs/adr/006-audit-history.md) | DB mutation triggers, per-request hash chain and verification endpoint | Tamper evidence within the stated trust boundary; no external anchoring |
 
-## Agent workflow
+Read the [architecture](docs/architecture.md), [domain model and invariants](docs/domain-model.md), [threat model](THREAT_MODEL.md), and [AI pipeline boundaries](docs/ai-pipeline.md).
 
-For each control the agent:
+## Tested behavior, including failure paths
 
-1. reads the control requirement and expected evidence type;
-2. runs deterministic evidence checks;
-3. retrieves relevant control, evidence, and guidance chunks;
-4. asks either the offline reasoner or optional LLM to produce a structured assessment;
-5. validates citations against retrieved sources;
-6. validates evidence IDs against the source index;
-7. records missing evidence and explicit exceptions;
-8. stores a trace of the complete decision path;
-9. marks the result **pending human review**.
+| Check | Observed result | Reproduce / evidence |
+|---|---|---|
+| Python behavior suite | **59 passed**, 11 PostgreSQL tests skipped locally | `python -m pytest -q`; [coverage summary](docs/reports/coverage-summary.json) |
+| Real PostgreSQL 16 integration | **11 passed** in GitHub Actions | [CI run](https://github.com/seoyeonglee/audit-evidence-agent/actions/runs/36996099394); [tests](tests/platform/test_postgres.py) |
+| Chromium end-to-end workflows | **3 passed** | [browser report](docs/reports/browser-tests.json), screenshots and CI artifacts |
+| TypeScript + production frontend | **Build passed** | `npm run build` runs TypeScript before Vite |
+| New Python modules | **Lint and format checks passed** | Ruff checks in the backend CI job |
 
-A high score cannot silently hide an explicit exception. Exception-bearing evidence is routed to human review as at least a `partial` result.
+The PostgreSQL tests use a runtime role that is neither superuser nor BYPASSRLS. They issue unfiltered SQL, attempt cross-tenant inserts, recycle pooled connections, race duplicate submissions, coordinate stale-worker/lease recovery, and attempt audit-event mutation. Queue tests cover retry exhaustion, final-attempt crashes, fencing stale workers and approval invalidation after a failed additional document. API tests reject forged role/tenant inputs and keep demo endpoints absent unless explicitly enabled.
 
-## RAG corpus
+The review found and corrected idempotency locking, lock-order inversion, invalid calendar dates, inaccurate JSON source locations and an unsafe demo default. CI also caught a real PostgreSQL migration placeholder bug. [Findings and regression evidence](docs/review-findings.md) · [Bootstrap concurrency incident](docs/postmortems/001-concurrent-demo-bootstrap.md) · [Migration incident](docs/postmortems/002-postgres-migration-placeholder.md).
 
-The demo indexes three source classes:
+## Measurements you can reproduce
 
-- `control:<control-id>` — control requirement and expected evidence
-- `evidence:<evidence-id>` — synthetic submitted evidence
-- `kb:<document>:<section>` — synthetic control-review guidance
+![Measured request latency and bounded offline evaluation](docs/reports/measurement-chart.png)
 
-The knowledge base intentionally describes generic review expectations instead of reproducing ISO, SOC 2, or other proprietary standard text.
+| Measurement | Result | Conditions |
+|---|---:|---|
+| Record-read p50 / p95 / p99 | **17.95 / 239.76 / 639.23 ms** | 500 in-process ASGI reads, concurrency 8, SQLite WAL, token lookup included |
+| Read errors | **0 / 500** | One local host; no network/TLS/cloud load generator |
+| Persisted processing workload | **1,000 jobs / 100 records completed** | 10 documents per record; single deterministic worker |
+| Processing elapsed time | **3.35 s** | Structured key-value fixtures; no OCR or external model calls |
+| Offline field exact match | **340 / 340** | 100 authored synthetic text/CSV/JSON cases |
+| Unsupported field rate | **0%** | Bounded labeled corpus; not a general-document accuracy claim |
 
-## Human-in-the-loop
+[Raw latencies and environment](docs/reports/benchmark.json) · [Per-case evaluation results](docs/reports/evaluation.json) · [Evaluation corpus](eval/platform-corpus.json) · [Benchmark script](scripts/benchmark.py).
 
-AI output is never treated as the final audit conclusion.
-
-Reviewer events are append-only and support:
-
-- `approve`
-- `reject`
-- `needs_changes`
-
-Example:
-
-```bash
-python -m src.review \
-  --run-id run-example \
-  --control-id CH-01 \
-  --decision needs_changes \
-  --reviewer reviewer@example \
-  --feedback "Confirm the open remediation item before sign-off."
-```
-
-The original model output remains intact so reviewer feedback can be analyzed separately.
-
-## Evaluation
-
-The checked-in synthetic dataset defines expected statuses for the demo controls.
-
-Metrics include:
-
-- exact status accuracy
-- exception precision
-- exception recall
-- false-positive rate
-- citation-valid rate
-- grounded-result rate
-- hallucination proxy rate
-
-The hallucination proxy is intentionally conservative: a result is ungrounded if it references a citation that was not retrieved or an evidence ID that does not exist. It does **not** claim to detect every semantic hallucination.
+The tail latency is material: SQLite transactions serialize and p99 is much slower than p50. This result motivates the [scaling plan](docs/scaling-strategy.md); it is not a production SLO. The 100% extraction result describes deliberately bounded structured fixtures, not LLM quality, scanned PDFs or real audit-document performance.
 
 ## Run locally
 
-### Install
+Python 3.12 and Node 20 are the CI reference environment.
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+source .venv/bin/activate
+pip install -r requirements-dev.txt
+DEMO_MODE=1 DATABASE_URL=sqlite:///evidence-platform.db \
+  uvicorn src.api:app --host 127.0.0.1 --port 8000
 ```
 
-### 1. Deterministic baseline
+In a second terminal:
 
 ```bash
-python -m src.agent
+cd frontend
+npm ci
+npm run dev -- --host 127.0.0.1
 ```
 
-Produces:
-
-- `output/control_assessment.csv`
-- `output/summary.json`
-
-### 2. Agentic RAG review — offline
+Open `http://localhost:5173`. The demo's **Process queued documents** button executes bounded worker ticks. To exercise the worker as a separate process after the demo has bootstrapped:
 
 ```bash
-python -m src.agentic --provider heuristic
+DATABASE_URL=sqlite:///evidence-platform.db \
+  python -m src.platform.worker --tenant demo-acme
 ```
 
-Produces:
-
-- `output/agent_decisions.json`
-- `output/trace.jsonl`
-
-This mode is reproducible and used in CI.
-
-### 3. Evaluate
-
-```bash
-python -m src.evaluate
-```
-
-Produces:
-
-- `output/evaluation.json`
-
-### 4. Optional LLM reasoning
-
-Set an API key locally and run:
-
-```bash
-export OPENAI_API_KEY="..."
-python -m src.agentic --provider openai
-```
-
-On Windows PowerShell:
-
-```powershell
-$env:OPENAI_API_KEY="..."
-python -m src.agentic --provider openai
-```
-
-No API key is committed to the repository. The LLM receives only the synthetic retrieved context.
-
-### 5. Tests
+Verify and regenerate measurements:
 
 ```bash
 python -m pytest -q
+ruff check --select F src/platform scripts/benchmark.py scripts/evaluate_platform.py scripts/render_reports.py tests/platform
+ruff format --check src/platform scripts/benchmark.py scripts/evaluate_platform.py scripts/render_reports.py tests/platform
+python -m scripts.evaluate_platform
+python -m scripts.benchmark
+cd frontend
+npm run build
+npx playwright install chromium
+npx playwright test
 ```
 
-## Example scenario
+Use a fresh SQLite file for each complete browser run: `E2E_DATABASE_URL=sqlite:///my-fresh-e2e.db npx playwright test`. Set `PYTHON_BIN` to the virtualenv Python when it is not activated. Matplotlib is optional for `scripts/render_reports.py`; measurement generation itself does not require it. PostgreSQL tests run with `TEST_POSTGRES_URL` against an **isolated disposable database**, because they install schema/policies and a test runtime role.
 
-The synthetic package includes:
+## Operating the next version
 
-| Control | Scenario |
+| Area | Concrete artifact |
 |---|---|
-| AC-01 | privileged-access review with approval and revocation evidence |
-| CH-01 | production change with an open remediation item |
-| BC-01 | successful backup restoration test |
-| TP-01 | vendor review that is out of period and still open |
-| HR-01 | termination review containing an overdue revocation |
-| LG-01 | required logging-review evidence is missing |
+| Change ownership and release gates | [Engineering playbook](ENGINEERING_PLAYBOOK.md) |
+| Queue failure and recovery | [Recovery runbook](docs/runbooks/queue-recovery.md) |
+| Release, rollback and restore | [Release runbook](docs/runbooks/release-and-restore.md) |
+| What is measured today | [Observability](docs/observability.md) |
+| Capacity and external-queue decision | [Scaling strategy](docs/scaling-strategy.md) |
+| Cost model with explicit assumptions | [Cost model](docs/cost-model.md) |
+| Prioritized next 90 days | [Ownership plan](docs/ownership-90-days.md) |
+| Original retrieval and agent demo | [RAG Lab documentation](docs/legacy-rag.md) |
 
-This mix makes the evaluation set cover supported, partial, exception-bearing, out-of-period, and missing-evidence paths.
-
-## Project structure
-
-```text
-audit-evidence-agent/
-├── data/
-│   ├── controls.csv
-│   ├── evidence_index.csv
-│   ├── evidence/
-│   └── knowledge_base/
-├── eval/
-│   └── expected_outputs.csv
-├── docs/
-│   ├── architecture.md
-│   └── methodology.md
-├── src/
-│   ├── agent.py          # deterministic baseline
-│   ├── agentic.py        # RAG + agent orchestration
-│   ├── evaluate.py       # evaluation harness
-│   ├── llm.py            # offline + optional LLM reasoners
-│   ├── loaders.py
-│   ├── retrieval.py
-│   ├── review.py         # human feedback events
-│   ├── schemas.py
-│   ├── scoring.py
-│   └── trace.py
-├── tests/
-├── requirements.txt
-└── README.md
-```
-
-## Reliability principles
-
-This project treats enterprise AI reliability as a system-design problem, not a prompt-only problem.
-
-- deterministic checks remain available as guardrails
-- source IDs are explicit and stable
-- citations are allow-listed after generation
-- missing evidence cannot be silently replaced by unrelated documents
-- model decisions and reviewer actions are stored separately
-- exception-bearing results require human attention
-- synthetic expected outputs make regressions measurable
-
-## Production extensions
-
-A production version would add:
-
-- document parsing and OCR pipelines
-- embeddings + production vector database
-- RBAC and tenant isolation
-- encrypted evidence storage
-- secrets management
-- prompt/model/version lineage
-- queue-based asynchronous processing
-- reviewer UI and workflow state machine
-- expert-labeled evaluation datasets
-- adversarial and regression test suites
-- privacy, retention, and deletion controls
-- observability for latency, retrieval quality, token usage, and error rates
-
-## Important limitation
-
-This tool does **not** issue audit opinions, certify compliance, or determine control effectiveness. Evidence authenticity, population completeness, sampling, design effectiveness, operating effectiveness, and final audit conclusions remain human responsibilities.
-
-See [architecture](docs/architecture.md) and [methodology](docs/methodology.md).
-
-## Tech
-
-Python · RAG · LLM APIs · TF-IDF Vector Retrieval · Structured Outputs · Human-in-the-Loop · Evaluation · Audit Analytics · Traceability
+These are design and operating artifacts for this reference project, not claims of a production on-call history. Before private deployment: provision PostgreSQL with separate migration/runtime credentials, integrate SSO and membership provisioning, supply persistent document storage and retention controls, test backups, and validate a representative document corpus. Current intake accepts normalized text/CSV/JSON; PDF normalization is a separate helper, without a binary upload UI or OCR. Production token issuance and login UI, source supersession and external audit anchoring remain explicit next steps.

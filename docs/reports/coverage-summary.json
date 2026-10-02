@@ -1,0 +1,106 @@
+{
+  "scope": "src/platform; local Python suite; actual PostgreSQL tests run separately in CI",
+  "measured_at": "2026-10-02T10:42:53.438539+00:00",
+  "totals": {
+    "covered_lines": 458,
+    "num_statements": 546,
+    "percent_covered": 83.88278388278388,
+    "percent_covered_display": "84",
+    "missing_lines": 88,
+    "excluded_lines": 0,
+    "percent_statements_covered": 83.88278388278388,
+    "percent_statements_covered_display": "84"
+  },
+  "files": {
+    "src/platform/__init__.py": {
+      "covered_lines": 0,
+      "num_statements": 0,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100"
+    },
+    "src/platform/auth.py": {
+      "covered_lines": 10,
+      "num_statements": 10,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100"
+    },
+    "src/platform/database.py": {
+      "covered_lines": 32,
+      "num_statements": 36,
+      "percent_covered": 88.88888888888889,
+      "percent_covered_display": "89",
+      "missing_lines": 4,
+      "excluded_lines": 0,
+      "percent_statements_covered": 88.88888888888889,
+      "percent_statements_covered_display": "89"
+    },
+    "src/platform/extraction.py": {
+      "covered_lines": 82,
+      "num_statements": 111,
+      "percent_covered": 73.87387387387388,
+      "percent_covered_display": "74",
+      "missing_lines": 29,
+      "excluded_lines": 0,
+      "percent_statements_covered": 73.87387387387388,
+      "percent_statements_covered_display": "74"
+    },
+    "src/platform/models.py": {
+      "covered_lines": 10,
+      "num_statements": 10,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100"
+    },
+    "src/platform/routes.py": {
+      "covered_lines": 97,
+      "num_statements": 118,
+      "percent_covered": 82.20338983050847,
+      "percent_covered_display": "82",
+      "missing_lines": 21,
+      "excluded_lines": 0,
+      "percent_statements_covered": 82.20338983050847,
+      "percent_statements_covered_display": "82"
+    },
+    "src/platform/seed.py": {
+      "covered_lines": 20,
+      "num_statements": 21,
+      "percent_covered": 95.23809523809524,
+      "percent_covered_display": "95",
+      "missing_lines": 1,
+      "excluded_lines": 0,
+      "percent_statements_covered": 95.23809523809524,
+      "percent_statements_covered_display": "95"
+    },
+    "src/platform/service.py": {
+      "covered_lines": 117,
+      "num_statements": 124,
+      "percent_covered": 94.35483870967742,
+      "percent_covered_display": "94",
+      "missing_lines": 7,
+      "excluded_lines": 0,
+      "percent_statements_covered": 94.35483870967742,
+      "percent_statements_covered_display": "94"
+    },
+    "src/platform/worker.py": {
+      "covered_lines": 90,
+      "num_statements": 116,
+      "percent_covered": 77.58620689655173,
+      "percent_covered_display": "78",
+      "missing_lines": 26,
+      "excluded_lines": 0,
+      "percent_statements_covered": 77.58620689655173,
+      "percent_statements_covered_display": "78"
+    }
+  }
+}

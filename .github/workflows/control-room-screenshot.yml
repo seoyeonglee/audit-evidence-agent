@@ -1,72 +1,31 @@
-name: control-room-screenshot
-
+name: live-demo-screenshot
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - "docs/control-room.png"
-
+  workflow_dispatch:
 permissions:
-  contents: write
-
+  contents: read
 jobs:
   capture:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Wake API
-        shell: bash
-        run: |
-          for i in $(seq 1 60); do
-            if curl -fsS "https://seoyoung-audit-evidence-api.onrender.com/health" >/dev/null; then
-              echo "API ready"
-              exit 0
-            fi
-            echo "Waiting for free-tier API cold start ($i/60)"
-            sleep 5
-          done
-          exit 1
-
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-
-      - name: Install Playwright
+          node-version: '20'
+      - run: npm ci && npx playwright install --with-deps chromium
+        working-directory: frontend
+      - name: Capture deployed UI without changing repository history
+        working-directory: frontend
         run: |
-          npm install --no-save playwright@1.55.0
-          npx playwright install --with-deps chromium
-
-      - name: Capture live control room
-        run: |
-          mkdir -p docs
-          node - <<'NODE'
-          const { chromium } = require('playwright');
-          (async () => {
-            const browser = await chromium.launch({ headless: true });
-            const page = await browser.newPage({
-              viewport: { width: 1600, height: 1050 },
-              deviceScaleFactor: 1
-            });
-            await page.goto('https://seoyoung-audit-evidence.onrender.com', {
-              waitUntil: 'networkidle',
-              timeout: 180000
-            });
-            await page.waitForTimeout(5000);
-            await page.screenshot({
-              path: 'docs/control-room.png',
-              fullPage: false
-            });
-            await browser.close();
-          })();
-          NODE
-
-      - name: Commit screenshot
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/control-room.png
-          git diff --cached --quiet && exit 0
-          git commit -m "docs: refresh live control room screenshot"
-          git push
+          node --input-type=module <<'JS'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch();
+          const page = await browser.newPage({ viewport: { width: 1512, height: 1120 } });
+          await page.goto('https://seoyoung-audit-evidence.onrender.com', { timeout: 180000 });
+          await page.getByRole('heading', { name: 'Evidence operations' }).waitFor({ timeout: 180000 });
+          await page.screenshot({ path: 'live-demo.png', fullPage: true });
+          await browser.close();
+          JS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: live-demo-screenshot
+          path: frontend/live-demo.png

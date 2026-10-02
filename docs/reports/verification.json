@@ -1,0 +1,27 @@
+{
+  "verified_at": "2026-10-02T10:42:53.439774+00:00",
+  "python_local": {
+    "passed": 59,
+    "postgres_skipped": 11,
+    "warnings": 1,
+    "warning": "Starlette httpx TestClient deprecation",
+    "coverage_percent": 83.88278388278388
+  },
+  "postgres_ci": {
+    "passed": 11,
+    "version": 16,
+    "commit": "455b7a79788d30162bd26566a3ee250bac3beac2",
+    "url": "https://github.com/seoyeonglee/audit-evidence-agent/actions/runs/36996099394"
+  },
+  "chromium_local": {
+    "startTime": "2026-10-02T10:40:09.217Z",
+    "duration": 7873.437,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "typescript_vite_build": "passed",
+  "ruff_undefined_unused_checks": "passed",
+  "ruff_format": "passed"
+}
