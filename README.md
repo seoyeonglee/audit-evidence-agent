@@ -1,12 +1,33 @@
 # Audit Evidence Agent
 
 [![tests](https://github.com/seoyeonglee/audit-evidence-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/seoyeonglee/audit-evidence-agent/actions/workflows/tests.yml)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Control%2F%2FRoom-76E2B8)](https://seoyoung-audit-evidence.onrender.com)
+[![API Docs](https://img.shields.io/badge/API-FastAPI-009688)](https://seoyoung-audit-evidence-api.onrender.com/docs)
+
+**[Open Live Control Room](https://seoyoung-audit-evidence.onrender.com)** · **[Open Swagger API](https://seoyoung-audit-evidence-api.onrender.com/docs)**
 
 **AI-assisted audit evidence review with RAG, deterministic guardrails, human review, evaluation, and end-to-end traceability.**
 
 This project models a realistic enterprise workflow: evidence is ingested, mapped to control requirements, retrieved into an agent context, evaluated for sufficiency and exceptions, validated for grounding, and routed to a human reviewer before any decision is finalized.
 
 > All controls, evidence files, names, and scenarios are synthetic. This repository contains no employer workpapers, customer data, internal audit findings, proprietary control logic, or copyrighted control-standard text.
+
+## Live Control//Room
+
+[![Audit Evidence Agent live control room](docs/control-room.png)](https://seoyoung-audit-evidence.onrender.com)
+
+The deployed interface turns the repository into an interactive review workflow rather than a static model demo:
+
+- review a queue of synthetic controls and AI-assisted assessments;
+- inspect deterministic type / period / keyword / exception guardrails;
+- open retrieved RAG sources and see exactly which sources were cited;
+- compare confidence, baseline score, grounding, and citation validation;
+- inspect primary evidence and missing-evidence conditions;
+- record **Approve / Needs Changes / Reject** human-review decisions;
+- follow the full lineage from requirement → guardrails → retrieval → agent → validation → reviewer;
+- view evaluation metrics for accuracy, precision, recall, grounding, citation validity, and hallucination proxy.
+
+The public deployment intentionally uses the offline heuristic reasoner and local TF-IDF retrieval so the demo is reproducible and runs without paid model calls. The optional OpenAI reasoner remains available in the repository for local experimentation.
 
 ## What this demonstrates
 
