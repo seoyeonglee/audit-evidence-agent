@@ -1,7 +1,7 @@
 {
   "config": {
-    "configFile": "/workspace/scratch/122ea10ae136/audit-evidence-agent/frontend/playwright.config.ts",
-    "rootDir": "/workspace/scratch/122ea10ae136/audit-evidence-agent/frontend/tests",
+    "configFile": "<repo>/frontend/playwright.config.ts",
+    "rootDir": "<repo>/frontend/tests",
     "forbidOnly": false,
     "fullyParallel": false,
     "globalSetup": null,
@@ -22,7 +22,7 @@
       [
         "json",
         {
-          "outputFile": "../docs/reports/browser-tests.json"
+          "outputFile": "<repo>/docs/reports/browser-tests.json"
         }
       ]
     ],
@@ -33,7 +33,7 @@
     "quiet": false,
     "projects": [
       {
-        "outputDir": "/workspace/scratch/122ea10ae136/audit-evidence-agent/frontend/test-results",
+        "outputDir": "<repo>/frontend/test-results",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
@@ -41,7 +41,7 @@
         },
         "id": "",
         "name": "",
-        "testDir": "/workspace/scratch/122ea10ae136/audit-evidence-agent/frontend/tests",
+        "testDir": "<repo>/frontend/tests",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -79,12 +79,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1642,
+                  "duration": 1905,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-02T09:37:50.284Z",
+                  "startTime": "2026-10-02T10:40:13.762Z",
                   "attachments": []
                 }
               ],
@@ -93,7 +93,7 @@
           ],
           "id": "4f8fd72df7d8ab107a64-06af1ceba86c3bd81b00",
           "file": "operations.spec.ts",
-          "line": 3,
+          "line": 5,
           "column": 1
         },
         {
@@ -112,12 +112,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 655,
+                  "duration": 622,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-02T09:37:52.009Z",
+                  "startTime": "2026-10-02T10:40:15.835Z",
                   "attachments": []
                 }
               ],
@@ -126,7 +126,7 @@
           ],
           "id": "4f8fd72df7d8ab107a64-c4b54d5c20121215168b",
           "file": "operations.spec.ts",
-          "line": 23,
+          "line": 25,
           "column": 1
         },
         {
@@ -145,12 +145,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 520,
+                  "duration": 552,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-02T09:37:52.669Z",
+                  "startTime": "2026-10-02T10:40:16.464Z",
                   "attachments": []
                 }
               ],
@@ -159,7 +159,7 @@
           ],
           "id": "4f8fd72df7d8ab107a64-b72391be65c5c8ba4fdb",
           "file": "operations.spec.ts",
-          "line": 32,
+          "line": 34,
           "column": 1
         }
       ]
@@ -167,8 +167,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-10-02T09:37:46.040Z",
-    "duration": 7218.59,
+    "startTime": "2026-10-02T10:40:09.217Z",
+    "duration": 7873.437,
     "expected": 3,
     "skipped": 0,
     "unexpected": 0,

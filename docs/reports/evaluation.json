@@ -1202,7 +1202,7 @@
       "passed": true
     }
   ],
-  "measured_at": "2026-10-02T09:36:12.161047+00:00",
+  "measured_at": "2026-10-02T10:43:10.808595+00:00",
   "corpus_sha256": "70200fb067dd0c5d65b07d9afe020d4855eee6bd567215b97d28c27ceb8364c2",
   "limitations": [
     "Rule parser evaluated on generated structured examples; general document/LLM quality is not established.",
