@@ -146,3 +146,19 @@ def test_prompt_like_document_goes_to_dead_letter(system):
     assert r['jobs'][0]['status'] == 'dead_letter'
     assert r['status'] == 'needs_changes'
     assert r['canonical'].get('complete') is not True
+
+@pytest.mark.parametrize('value',['2026-99-99','2026-02-30'])
+def test_calendar_invalid_dates_are_quarantined(value):
+    from src.platform.extraction import extract,PermanentError
+    with pytest.raises(PermanentError):
+        extract({'id':'D1','digest':'x','content':f'review_date: {value}','media_type':'text/plain'})
+
+
+def test_json_lineage_points_to_the_actual_fact():
+    from src.platform.extraction import extract
+    content='{\n  "padding": "'+('x'*600)+'",\n  "system": "production-admin",\n  "period": "2026-Q3"\n}'
+    result=extract({'id':'D1','digest':'x','content':content,'media_type':'application/json'})
+    source=result['fields']['system']['source']
+    assert source['line']==3
+    assert 'production-admin' in source['quote']
+    assert '"system"' in source['quote']

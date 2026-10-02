@@ -91,3 +91,67 @@ def test_pg_append_only_trigger_blocks_update(pg_system):
     with pytest.raises(DatabaseError):
         with store.transaction('demo-acme') as conn:
             conn.execute(update(events).values(actor='forged'))
+
+
+def test_concurrent_same_key_across_requests_returns_domain_conflict(pg_system):
+    from src.platform.service import DomainError
+    from test_workflow import doc
+    _,service,users=pg_system
+    def submit(request_id):
+        try:
+            return service.submit(users['auditor'],request_id,'cross-request-race',doc())
+        except DomainError as error:
+            return error.status
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results=list(pool.map(submit,['REQ-ACCESS','REQ-BACKUP']))
+    assert sum(isinstance(r,dict) for r in results)==1
+    assert results.count(409)==1
+
+
+def test_expired_job_recovery_and_stale_completion_do_not_deadlock(pg_system):
+    from datetime import datetime,timedelta,timezone
+    from threading import Event
+    from sqlalchemy import event
+    from src.platform.worker import Worker
+    from src.platform.extraction import extract
+    from src.platform.models import documents,jobs
+    from test_workflow import doc
+    store,service,users=pg_system
+    result=service.submit(users['auditor'],'REQ-BACKUP','lease-lock-order',doc())
+    clock=[datetime(2035,1,1,tzinfo=timezone.utc)]
+    worker=Worker(store,'demo-acme',clock=lambda:clock[0],lease_seconds=1,max_attempts=1)
+    # Keep this schedule separate from the other jobs claimed by earlier tests.
+    with store.transaction('demo-acme') as conn:
+        conn.execute(update(jobs).where(jobs.c.tenant_id=='demo-acme',jobs.c.id!=result['job_id']).values(status='succeeded'))
+    job=worker.claim()
+    with store.transaction('demo-acme') as conn:
+        d=dict(conn.execute(select(documents).where(documents.c.id==result['document_id'])).mappings().one())
+    entered=Event();release=Event();recovering=Event()
+    class PausedWorker(Worker):
+        def _fence(self,claimed):
+            fence=super()._fence(claimed)
+            if not entered.is_set():
+                entered.set()
+                assert release.wait(5)
+            return fence
+    paused=PausedWorker(store,'demo-acme',clock=lambda:clock[0],lease_seconds=1,max_attempts=1)
+    def before_execute(conn,cursor,statement,parameters,context,many):
+        if recovering.is_set() and statement.startswith('SELECT requests.'):
+            release.set()
+    event.listen(store.engine,'before_cursor_execute',before_execute)
+    try:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            complete=pool.submit(paused.complete,job,extract(d))
+            assert entered.wait(5)
+            clock[0]+=timedelta(seconds=2)
+            recovering.set()
+            recovery=pool.submit(worker.claim)
+            assert recovery.result(timeout=8) is None
+            release.set()
+            assert complete.result(timeout=8) is False
+    finally:
+        release.set()
+        event.remove(store.engine,'before_cursor_execute',before_execute)
+    r=service.detail(users['reviewer'],'REQ-BACKUP')
+    assert next(j for j in r['jobs'] if j['id']==job['id'])['status']=='dead_letter'
+    assert r['canonical']['complete'] is False

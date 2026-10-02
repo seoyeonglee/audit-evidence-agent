@@ -1,5 +1,6 @@
 """Offline structured extraction. Scores are rule completeness, not model probability."""
 import csv
+from datetime import date
 import io
 import json
 import re
@@ -23,7 +24,18 @@ def extract(document):
             raw = json.loads(content, object_pairs_hook=list)
             if not isinstance(raw,list):
                 raise ValueError()
-            entries = [(key, value, 1, content[:500]) for key,value in raw]
+            for key, value in raw:
+                if key not in FIELDS:
+                    continue
+                match = re.search(re.escape(json.dumps(key))+r'\s*:', content)
+                if not match:
+                    raise ValueError()
+                start = match.start()
+                value_start = match.end()
+                while content[value_start].isspace():
+                    value_start += 1
+                _, length = json.JSONDecoder().raw_decode(content[value_start:])
+                entries.append((key,value,content.count('\n',0,start)+1,content[start:value_start+length]))
         except (ValueError, TypeError):
             raise PermanentError('Malformed JSON document') from None
     elif media == 'text/csv':
@@ -58,8 +70,13 @@ def extract(document):
             value = value.strip()
             if key == 'period' and not re.fullmatch(r'\d{4}-Q[1-4]',value):
                 raise PermanentError('Period must be YYYY-QN')
-            if key == 'review_date' and not re.fullmatch(r'\d{4}-\d{2}-\d{2}',value):
-                raise PermanentError('Review date must be YYYY-MM-DD')
+            if key == 'review_date':
+                try:
+                    if not re.fullmatch(r'\d{4}-\d{2}-\d{2}',value):
+                        raise ValueError()
+                    date.fromisoformat(value)
+                except ValueError:
+                    raise PermanentError('Review date must be a valid calendar date') from None
         fields[key] = {'value':value,'source':{'document_id':document['id'],
             'digest':document['digest'],'line':line,'quote':quote},'method':'exact-source-parse'}
     if not fields:

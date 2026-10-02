@@ -23,7 +23,7 @@ _runtime_lock = Lock()
 
 @lru_cache(maxsize=1)
 def _runtime():
-    demo = os.environ.get('DEMO_MODE','1')=='1'
+    demo = os.environ.get('DEMO_MODE','0')=='1'
     url = os.environ.get('DATABASE_URL')
     if not demo and not url:
         raise RuntimeError('Production requires DATABASE_URL and provisioned membership tokens')

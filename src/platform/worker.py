@@ -60,6 +60,8 @@ class Worker:
 
     def complete(self, job, extraction):
         with self.store.transaction(self.tenant_id) as conn:
+            if not conn.execute(select(jobs.c.id).where(self._fence(job)).with_for_update()).first():
+                return False
             record = conn.execute(select(requests).where(requests.c.id==job['request_id'],
                 requests.c.tenant_id==self.tenant_id).with_for_update()).mappings().one()
             result = conn.execute(update(jobs).where(self._fence(job)).values(status='succeeded',
@@ -102,6 +104,8 @@ class Worker:
         terminal = isinstance(error,PermanentError) or job['attempts']>=self.max_attempts
         error_type = type(error).__name__  # never store uploaded contents or credentials in errors
         with self.store.transaction(self.tenant_id) as conn:
+            if not conn.execute(select(jobs.c.id).where(self._fence(job)).with_for_update()).first():
+                return False
             conn.execute(select(requests).where(requests.c.id==job['request_id'],requests.c.tenant_id==self.tenant_id).with_for_update())
             result = conn.execute(update(jobs).where(self._fence(job)).values(
                 status='dead_letter' if terminal else 'queued',error=error_type,lease_token=None,

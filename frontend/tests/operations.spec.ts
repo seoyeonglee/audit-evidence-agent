@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import { fileURLToPath } from 'node:url';
+const screenshot = (name: string) => fileURLToPath(new URL(`../../docs/screenshots/${name}`, import.meta.url));
 
 test('evidence submission, worker processing, source inspection and approval', async ({ page }) => {
   await page.goto('/');
@@ -11,13 +13,13 @@ test('evidence submission, worker processing, source inspection and approval', a
   await page.getByRole('button', { name: 'Process queued documents' }).click();
   await expect(page.getByText('production-admin', { exact: true }).first()).toBeVisible();
   await expect(page.getByText('✓ Source verified', { exact: true }).first()).toBeVisible();
-  await page.screenshot({ path: '../docs/screenshots/operations.png', fullPage: true });
+  await page.screenshot({ path: screenshot('operations.png'), fullPage: true });
   await page.getByLabel('Reviewer feedback').fill('Verified source fields, scope and review period.');
   await page.getByRole('button', { name: 'Approve record' }).click();
   await expect(page.getByText('Review recorded: approved.')).toBeVisible();
   await expect(page.getByTestId('request-status')).toHaveText('APPROVED');
   await expect(page.getByText('review.approve', { exact: true })).toBeVisible();
-  await page.screenshot({ path: '../docs/screenshots/approved-record.png', fullPage: true });
+  await page.screenshot({ path: screenshot('approved-record.png'), fullPage: true });
 });
 
 test('external vendor scope is enforced and reviewer actions are hidden', async ({ page }) => {
@@ -26,7 +28,7 @@ test('external vendor scope is enforced and reviewer actions are hidden', async 
   await expect(page.getByRole('button', { name: /Vendor security attestation/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /Quarterly privileged access review/ })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Approve record' })).toHaveCount(0);
-  await page.screenshot({ path: '../docs/screenshots/vendor-scope.png', fullPage: true });
+  await page.screenshot({ path: screenshot('vendor-scope.png'), fullPage: true });
 });
 
 test('another organization has only its own records; mobile layout has no overflow', async ({ page }) => {
@@ -36,5 +38,5 @@ test('another organization has only its own records; mobile layout has no overfl
   await expect(page.getByRole('button', { name: /Restricted organization record/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /Quarterly privileged access review/ })).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy();
-  await page.screenshot({ path: '../docs/screenshots/mobile.png', fullPage: true });
+  await page.screenshot({ path: screenshot('mobile.png'), fullPage: true });
 });

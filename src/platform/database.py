@@ -48,4 +48,4 @@ class Store:
                     SELECT RAISE(ABORT, 'audit events are append-only'); END""")
             else:
                 sql = Path(__file__).resolve().parents[2] / 'infrastructure/postgres/security.sql'
-                conn.exec_driver_sql(sql.read_text())
+                conn.execute(text(sql.read_text()))

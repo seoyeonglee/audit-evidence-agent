@@ -44,3 +44,13 @@ def test_crashed_final_attempt_is_dead_lettered(system):
     record=service.detail(users['reviewer'],'REQ-ACCESS')
     assert record['jobs'][0]['status']=='dead_letter'
     assert record['canonical']['complete'] is False
+
+
+def test_missing_demo_opt_in_is_closed(tmp_path,monkeypatch):
+    from src.platform.routes import runtime
+    runtime.cache_clear()
+    monkeypatch.delenv('DEMO_MODE',raising=False)
+    monkeypatch.delenv('DATABASE_URL',raising=False)
+    with pytest.raises(RuntimeError,match='Production requires'):
+        runtime()
+    runtime.cache_clear()

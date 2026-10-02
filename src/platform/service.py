@@ -3,7 +3,7 @@ import hashlib
 import json
 import uuid
 
-from sqlalchemy import insert, or_, select, update
+from sqlalchemy import insert, or_, select, update, text
 
 from .auth import Principal, token_hash
 from .models import documents, events, jobs, members, requests
@@ -95,6 +95,10 @@ class EvidenceService:
             raise DomainError(422, 'Idempotency-Key must contain 1–120 characters')
         fingerprint = digest(packed({'request_id':request_id, **document}))
         with self.store.transaction(principal.tenant_id) as conn:
+            if self.store.engine.dialect.name == 'postgresql':
+                # Key scope is tenant-wide, so locking only one request is insufficient.
+                conn.execute(text('SELECT pg_advisory_xact_lock(hashtextextended(:scope, 0))'),
+                    {'scope':packed([principal.tenant_id,key])})
             record = self._request(conn, principal, request_id, lock=True)
             old = conn.execute(select(documents).where(documents.c.tenant_id == principal.tenant_id,
                                                        documents.c.idempotency_key == key)).mappings().first()
