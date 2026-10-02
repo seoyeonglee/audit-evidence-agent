@@ -29,7 +29,9 @@ class HeuristicAuditReasoner:
     """Offline reasoner used for tests and reproducible demos.
 
     It converts the deterministic baseline into an agent-shaped decision while
-    restricting every citation to retrieved context.
+    restricting every citation to retrieved context. Explicit exception terms
+    force at least a partial result so that human review cannot be bypassed by
+    an otherwise high deterministic score.
     """
 
     provider = "heuristic-guardrail"
@@ -60,15 +62,23 @@ class HeuristicAuditReasoner:
         if deterministic.status == "missing":
             confidence = 0.99
             missing = [str(control["required_evidence_type"])]
+            status = "missing"
         elif deterministic.exception_terms:
             confidence = 0.86
             missing = []
+            status = (
+                "partial"
+                if deterministic.status == "supported"
+                else deterministic.status
+            )
         elif deterministic.status == "partial":
             confidence = 0.80
             missing = ["additional or in-period supporting evidence"]
+            status = "partial"
         else:
             confidence = min(0.98, 0.75 + deterministic.score / 400)
             missing = []
+            status = deterministic.status
 
         exception = ""
         if deterministic.exception_terms:
@@ -79,7 +89,7 @@ class HeuristicAuditReasoner:
 
         return AgentDecision(
             control_id=str(control["control_id"]),
-            status=deterministic.status,
+            status=status,
             confidence=round(confidence, 3),
             requirement_summary=str(control["requirement"]),
             evidence_ids=evidence_ids,
@@ -153,8 +163,8 @@ Rules:
 - citations may ONLY use these source IDs: {allowed_citations}
 - do not invent evidence IDs, dates, approvals, owners, or test results.
 - identify missing evidence explicitly.
-- if evidence contains an exception, surface it even if the control otherwise
-  appears supported.
+- if evidence contains an exception, status must not be supported; route it to
+  human review as partial or gap.
 - reasoning must be concise and reviewable by a human auditor.
 """
 
