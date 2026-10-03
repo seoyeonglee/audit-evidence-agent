@@ -1,7 +1,7 @@
 {
   "config": {
-    "configFile": "<repo>/frontend/playwright.config.ts",
-    "rootDir": "<repo>/frontend/tests",
+    "configFile": "/workspace/scratch/a0b5b71b6a48/audit-runtime/frontend/playwright.config.ts",
+    "rootDir": "/workspace/scratch/a0b5b71b6a48/audit-runtime/frontend/tests",
     "forbidOnly": false,
     "fullyParallel": false,
     "globalSetup": null,
@@ -16,13 +16,20 @@
     "preserveOutput": "always",
     "reporter": [
       [
+        "html",
+        {
+          "outputFolder": "playwright-report",
+          "open": "never"
+        }
+      ],
+      [
         "list",
         null
       ],
       [
         "json",
         {
-          "outputFile": "<repo>/docs/reports/browser-tests.json"
+          "outputFile": "/workspace/scratch/a0b5b71b6a48/audit-runtime/docs/reports/browser-tests.json"
         }
       ]
     ],
@@ -33,7 +40,7 @@
     "quiet": false,
     "projects": [
       {
-        "outputDir": "<repo>/frontend/test-results",
+        "outputDir": "/workspace/scratch/a0b5b71b6a48/audit-runtime/frontend/test-results",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
@@ -41,7 +48,7 @@
         },
         "id": "",
         "name": "",
-        "testDir": "<repo>/frontend/tests",
+        "testDir": "/workspace/scratch/a0b5b71b6a48/audit-runtime/frontend/tests",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -57,6 +64,179 @@
     "webServer": null
   },
   "suites": [
+    {
+      "title": "enterprise.spec.ts",
+      "file": "enterprise.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "graph interruption, exact sources, independent approval and final report",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1488,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-03T00:11:31.195Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ad3e280ab08559ce7920-ef1897689cfdcd2c3526",
+          "file": "enterprise.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "conflicting evidence blocks approval and retains reviewer feedback",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1117,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-03T00:11:32.733Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ad3e280ab08559ce7920-d7eedbc0442ae5dccc08",
+          "file": "enterprise.spec.ts",
+          "line": 48,
+          "column": 1
+        },
+        {
+          "title": "changed source version blocks stale approval and offers a new run",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1952,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-03T00:11:33.857Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ad3e280ab08559ce7920-d47e9ec56fe841067855",
+          "file": "enterprise.spec.ts",
+          "line": 77,
+          "column": 1
+        },
+        {
+          "title": "API interruption is visible and retry restores the workspace at mobile width",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 764,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-03T00:11:35.812Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ad3e280ab08559ce7920-06925cc20b0c23444844",
+          "file": "enterprise.spec.ts",
+          "line": 125,
+          "column": 1
+        },
+        {
+          "title": "completed report can be reopened after navigating to another request",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1128,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-03T00:11:36.580Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ad3e280ab08559ce7920-4e958c6fa6006f12adf7",
+          "file": "enterprise.spec.ts",
+          "line": 160,
+          "column": 1
+        }
+      ]
+    },
     {
       "title": "operations.spec.ts",
       "file": "operations.spec.ts",
@@ -79,12 +259,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1905,
+                  "duration": 1439,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-02T10:40:13.762Z",
+                  "startTime": "2026-10-03T00:11:37.717Z",
                   "attachments": []
                 }
               ],
@@ -112,12 +292,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 622,
+                  "duration": 539,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-02T10:40:15.835Z",
+                  "startTime": "2026-10-03T00:11:39.159Z",
                   "attachments": []
                 }
               ],
@@ -126,7 +306,7 @@
           ],
           "id": "4f8fd72df7d8ab107a64-c4b54d5c20121215168b",
           "file": "operations.spec.ts",
-          "line": 25,
+          "line": 27,
           "column": 1
         },
         {
@@ -145,12 +325,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 552,
+                  "duration": 456,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-02T10:40:16.464Z",
+                  "startTime": "2026-10-03T00:11:39.701Z",
                   "attachments": []
                 }
               ],
@@ -159,7 +339,7 @@
           ],
           "id": "4f8fd72df7d8ab107a64-b72391be65c5c8ba4fdb",
           "file": "operations.spec.ts",
-          "line": 34,
+          "line": 36,
           "column": 1
         }
       ]
@@ -167,9 +347,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-10-02T10:40:09.217Z",
-    "duration": 7873.437,
-    "expected": 3,
+    "startTime": "2026-10-03T00:11:27.570Z",
+    "duration": 12650.642,
+    "expected": 8,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

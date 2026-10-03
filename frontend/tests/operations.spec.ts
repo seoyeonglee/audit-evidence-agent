@@ -7,9 +7,11 @@ test('evidence submission, worker processing, source inspection and approval', a
   await expect(page.getByRole('heading', { name: 'Evidence operations' })).toBeVisible();
   await page.getByLabel('Demo persona').selectOption('owner');
   await expect(page.getByRole('button', { name: /Quarterly privileged access review/ })).toBeVisible();
+  await page.getByRole('button', { name: /Quarterly privileged access review/ }).click();
   await page.getByRole('button', { name: 'Submit sample evidence' }).click();
   await expect(page.getByText('Evidence accepted. A durable processing job was queued.')).toBeVisible();
   await page.getByLabel('Demo persona').selectOption('reviewer');
+  await page.getByRole('button', { name: /Quarterly privileged access review/ }).click();
   await page.getByRole('button', { name: 'Process queued documents' }).click();
   await expect(page.getByText('production-admin', { exact: true }).first()).toBeVisible();
   await expect(page.getByText('✓ Source verified', { exact: true }).first()).toBeVisible();

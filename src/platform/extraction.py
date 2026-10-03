@@ -61,13 +61,19 @@ def extract(document):
             raise PermanentError("Malformed JSON document") from None
     elif media == "text/csv":
         try:
-            rows = list(csv.reader(io.StringIO(content), strict=True))
-            if not rows or rows[0] != ["field", "value"]:
+            physical_lines = content.splitlines(keepends=True)
+            reader = csv.reader(io.StringIO(content, newline=""), strict=True)
+            if next(reader, None) != ["field", "value"]:
                 raise ValueError()
-            for line, row in enumerate(rows[1:], 2):
+            end = reader.line_num
+            for row in reader:
+                start, end = end, reader.line_num
                 if len(row) != 2:
                     raise ValueError()
-                entries.append((row[0], row[1], line, ",".join(row)))
+                # Preserve CSV syntax and the physical start line, including
+                # quoted commas, escaped quotes and multi-line records.
+                quote = "".join(physical_lines[start:end]).rstrip("\r\n")
+                entries.append((row[0], row[1], start + 1, quote))
         except (ValueError, csv.Error):
             raise PermanentError("CSV must contain field,value rows") from None
     else:

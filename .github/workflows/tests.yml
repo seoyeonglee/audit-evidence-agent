@@ -2,6 +2,7 @@ name: tests
 on:
   push:
   pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -14,9 +15,9 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: pip install -r requirements-dev.txt
-      - run: ruff check --select F src/platform scripts/benchmark.py scripts/evaluate_platform.py scripts/render_reports.py tests/platform
-      - run: ruff format --check src/platform scripts/benchmark.py scripts/evaluate_platform.py scripts/render_reports.py tests/platform
-      - run: python -m pytest -q --cov=src/platform --cov-report=xml --junitxml=backend-results.xml
+      - run: ruff check --select F src/platform src/enterprise scripts/benchmark.py scripts/evaluate_platform.py scripts/render_reports.py tests/platform tests/enterprise
+      - run: ruff format --check src/platform src/enterprise scripts/benchmark.py scripts/evaluate_platform.py scripts/render_reports.py tests/platform tests/enterprise
+      - run: python -m pytest -q --cov=src/platform --cov=src/enterprise --cov-report=xml --junitxml=backend-results.xml
       - uses: actions/upload-artifact@v4
         with:
           name: backend-test-evidence
@@ -49,10 +50,13 @@ jobs:
           cache: pip
       - run: pip install -r requirements-dev.txt
       - run: python -m pytest tests/platform/test_postgres.py -q --junitxml=postgres-results.xml
+      - run: python -m pytest tests/enterprise/test_postgres_registry.py -q --junitxml=postgres-agent-results.xml
       - uses: actions/upload-artifact@v4
         with:
           name: postgres-rls-evidence
-          path: postgres-results.xml
+          path: |
+            postgres-results.xml
+            postgres-agent-results.xml
   frontend-browser:
     runs-on: ubuntu-latest
     steps:
@@ -63,7 +67,7 @@ jobs:
           cache: pip
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: pip install -r requirements.txt
@@ -79,3 +83,32 @@ jobs:
             docs/screenshots/
             docs/reports/browser-tests.json
             frontend/test-results/
+            frontend/playwright-report/
+  desktop-electron:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - run: pip install -r requirements.txt
+      - run: npm ci && npm run build
+        working-directory: frontend
+      - run: npm ci && npm test && npm run build
+        working-directory: desktop
+      - run: xvfb-run -a npm run test:e2e
+        working-directory: desktop
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: actual-electron-evidence
+          path: |
+            docs/screenshots/desktop-*.png
+            docs/reports/desktop-tests.json
+            desktop/playwright-report/
+            desktop/test-results/

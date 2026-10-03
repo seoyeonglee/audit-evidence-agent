@@ -1,0 +1,22 @@
+{
+  "name": "audit-evidence-desktop",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "npm run build && electron .",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "test:e2e": "playwright test",
+    "package": "npm run build && node package.mjs"
+  },
+  "devDependencies": {
+    "electron": "44.5.1",
+    "typescript": "^5.7.2",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.20.0",
+    "@playwright/test": "^1.51.1",
+    "@electron/packager": "^19.0.0"
+  }
+}

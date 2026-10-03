@@ -1,0 +1,1212 @@
+{
+  "provider": "deterministic-key-value-v1",
+  "scope": "synthetic structured text/CSV/JSON; no OCR or external LLM calls",
+  "cases": 100,
+  "expected_fields": 340,
+  "case_accuracy": 1.0,
+  "field_exact_match": 1.0,
+  "unsupported_field_rate": 0.0,
+  "quarantine_precision": 1.0,
+  "quarantine_recall": 1.0,
+  "exception_precision": 1.0,
+  "exception_recall": 1.0,
+  "outcomes": [
+    {
+      "id": "valid-000",
+      "actual": {
+        "system": "production-0",
+        "period": "2026-Q3",
+        "reviewed_users": 20,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-001",
+      "actual": {
+        "system": "production-1",
+        "period": "2026-Q3",
+        "reviewed_users": 21,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-002",
+      "actual": {
+        "system": "production-2",
+        "period": "2026-Q3",
+        "reviewed_users": 22,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-003",
+      "actual": {
+        "system": "production-3",
+        "period": "2026-Q3",
+        "reviewed_users": 23,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-004",
+      "actual": {
+        "system": "production-4",
+        "period": "2026-Q3",
+        "reviewed_users": 24,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-005",
+      "actual": {
+        "system": "production-0",
+        "period": "2026-Q3",
+        "reviewed_users": 25,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-006",
+      "actual": {
+        "system": "production-1",
+        "period": "2026-Q3",
+        "reviewed_users": 26,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-007",
+      "actual": {
+        "system": "production-2",
+        "period": "2026-Q3",
+        "reviewed_users": 27,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-008",
+      "actual": {
+        "system": "production-3",
+        "period": "2026-Q3",
+        "reviewed_users": 28,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-009",
+      "actual": {
+        "system": "production-4",
+        "period": "2026-Q3",
+        "reviewed_users": 29,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-010",
+      "actual": {
+        "system": "production-0",
+        "period": "2026-Q3",
+        "reviewed_users": 30,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-011",
+      "actual": {
+        "system": "production-1",
+        "period": "2026-Q3",
+        "reviewed_users": 31,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-012",
+      "actual": {
+        "system": "production-2",
+        "period": "2026-Q3",
+        "reviewed_users": 32,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-013",
+      "actual": {
+        "system": "production-3",
+        "period": "2026-Q3",
+        "reviewed_users": 33,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-014",
+      "actual": {
+        "system": "production-4",
+        "period": "2026-Q3",
+        "reviewed_users": 34,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-015",
+      "actual": {
+        "system": "production-0",
+        "period": "2026-Q3",
+        "reviewed_users": 35,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-016",
+      "actual": {
+        "system": "production-1",
+        "period": "2026-Q3",
+        "reviewed_users": 36,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-017",
+      "actual": {
+        "system": "production-2",
+        "period": "2026-Q3",
+        "reviewed_users": 37,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-018",
+      "actual": {
+        "system": "production-3",
+        "period": "2026-Q3",
+        "reviewed_users": 38,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-019",
+      "actual": {
+        "system": "production-4",
+        "period": "2026-Q3",
+        "reviewed_users": 39,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-020",
+      "actual": {
+        "system": "production-0",
+        "period": "2026-Q3",
+        "reviewed_users": 40,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-021",
+      "actual": {
+        "system": "production-1",
+        "period": "2026-Q3",
+        "reviewed_users": 41,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-022",
+      "actual": {
+        "system": "production-2",
+        "period": "2026-Q3",
+        "reviewed_users": 42,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-023",
+      "actual": {
+        "system": "production-3",
+        "period": "2026-Q3",
+        "reviewed_users": 43,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-024",
+      "actual": {
+        "system": "production-4",
+        "period": "2026-Q3",
+        "reviewed_users": 44,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-025",
+      "actual": {
+        "system": "production-0",
+        "period": "2026-Q3",
+        "reviewed_users": 45,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-026",
+      "actual": {
+        "system": "production-1",
+        "period": "2026-Q3",
+        "reviewed_users": 46,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-027",
+      "actual": {
+        "system": "production-2",
+        "period": "2026-Q3",
+        "reviewed_users": 47,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-028",
+      "actual": {
+        "system": "production-3",
+        "period": "2026-Q3",
+        "reviewed_users": 48,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-029",
+      "actual": {
+        "system": "production-4",
+        "period": "2026-Q3",
+        "reviewed_users": 49,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-030",
+      "actual": {
+        "system": "production-0",
+        "period": "2026-Q3",
+        "reviewed_users": 50,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-031",
+      "actual": {
+        "system": "production-1",
+        "period": "2026-Q3",
+        "reviewed_users": 51,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-032",
+      "actual": {
+        "system": "production-2",
+        "period": "2026-Q3",
+        "reviewed_users": 52,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-033",
+      "actual": {
+        "system": "production-3",
+        "period": "2026-Q3",
+        "reviewed_users": 53,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-034",
+      "actual": {
+        "system": "production-4",
+        "period": "2026-Q3",
+        "reviewed_users": 54,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-035",
+      "actual": {
+        "system": "production-0",
+        "period": "2026-Q3",
+        "reviewed_users": 55,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-036",
+      "actual": {
+        "system": "production-1",
+        "period": "2026-Q3",
+        "reviewed_users": 56,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-037",
+      "actual": {
+        "system": "production-2",
+        "period": "2026-Q3",
+        "reviewed_users": 57,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-038",
+      "actual": {
+        "system": "production-3",
+        "period": "2026-Q3",
+        "reviewed_users": 58,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-039",
+      "actual": {
+        "system": "production-4",
+        "period": "2026-Q3",
+        "reviewed_users": 59,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-040",
+      "actual": {
+        "system": "production-0",
+        "period": "2026-Q3",
+        "reviewed_users": 60,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-041",
+      "actual": {
+        "system": "production-1",
+        "period": "2026-Q3",
+        "reviewed_users": 61,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-042",
+      "actual": {
+        "system": "production-2",
+        "period": "2026-Q3",
+        "reviewed_users": 62,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-043",
+      "actual": {
+        "system": "production-3",
+        "period": "2026-Q3",
+        "reviewed_users": 63,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-044",
+      "actual": {
+        "system": "production-4",
+        "period": "2026-Q3",
+        "reviewed_users": 64,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-045",
+      "actual": {
+        "system": "production-0",
+        "period": "2026-Q3",
+        "reviewed_users": 65,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-046",
+      "actual": {
+        "system": "production-1",
+        "period": "2026-Q3",
+        "reviewed_users": 66,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-047",
+      "actual": {
+        "system": "production-2",
+        "period": "2026-Q3",
+        "reviewed_users": 67,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-048",
+      "actual": {
+        "system": "production-3",
+        "period": "2026-Q3",
+        "reviewed_users": 68,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-049",
+      "actual": {
+        "system": "production-4",
+        "period": "2026-Q3",
+        "reviewed_users": 69,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-050",
+      "actual": {
+        "system": "production-0",
+        "period": "2026-Q3",
+        "reviewed_users": 70,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-051",
+      "actual": {
+        "system": "production-1",
+        "period": "2026-Q3",
+        "reviewed_users": 71,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-052",
+      "actual": {
+        "system": "production-2",
+        "period": "2026-Q3",
+        "reviewed_users": 72,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-053",
+      "actual": {
+        "system": "production-3",
+        "period": "2026-Q3",
+        "reviewed_users": 73,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-054",
+      "actual": {
+        "system": "production-4",
+        "period": "2026-Q3",
+        "reviewed_users": 74,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-055",
+      "actual": {
+        "system": "production-0",
+        "period": "2026-Q3",
+        "reviewed_users": 75,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-056",
+      "actual": {
+        "system": "production-1",
+        "period": "2026-Q3",
+        "reviewed_users": 76,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-057",
+      "actual": {
+        "system": "production-2",
+        "period": "2026-Q3",
+        "reviewed_users": 77,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-058",
+      "actual": {
+        "system": "production-3",
+        "period": "2026-Q3",
+        "reviewed_users": 78,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "valid-059",
+      "actual": {
+        "system": "production-4",
+        "period": "2026-Q3",
+        "reviewed_users": 79,
+        "exceptions": 0
+      },
+      "exception_codes": [],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "stale-0",
+      "actual": {
+        "system": "prod-0",
+        "period": "2026-Q2",
+        "reviewed_users": 20,
+        "exceptions": 0
+      },
+      "exception_codes": [
+        "PERIOD_MISMATCH"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "stale-1",
+      "actual": {
+        "system": "prod-1",
+        "period": "2026-Q2",
+        "reviewed_users": 21,
+        "exceptions": 0
+      },
+      "exception_codes": [
+        "PERIOD_MISMATCH"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "stale-2",
+      "actual": {
+        "system": "prod-2",
+        "period": "2026-Q2",
+        "reviewed_users": 22,
+        "exceptions": 0
+      },
+      "exception_codes": [
+        "PERIOD_MISMATCH"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "stale-3",
+      "actual": {
+        "system": "prod-3",
+        "period": "2026-Q2",
+        "reviewed_users": 23,
+        "exceptions": 0
+      },
+      "exception_codes": [
+        "PERIOD_MISMATCH"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "stale-4",
+      "actual": {
+        "system": "prod-4",
+        "period": "2026-Q2",
+        "reviewed_users": 24,
+        "exceptions": 0
+      },
+      "exception_codes": [
+        "PERIOD_MISMATCH"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "stale-5",
+      "actual": {
+        "system": "prod-5",
+        "period": "2026-Q2",
+        "reviewed_users": 25,
+        "exceptions": 0
+      },
+      "exception_codes": [
+        "PERIOD_MISMATCH"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "stale-6",
+      "actual": {
+        "system": "prod-6",
+        "period": "2026-Q2",
+        "reviewed_users": 26,
+        "exceptions": 0
+      },
+      "exception_codes": [
+        "PERIOD_MISMATCH"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "stale-7",
+      "actual": {
+        "system": "prod-7",
+        "period": "2026-Q2",
+        "reviewed_users": 27,
+        "exceptions": 0
+      },
+      "exception_codes": [
+        "PERIOD_MISMATCH"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "stale-8",
+      "actual": {
+        "system": "prod-8",
+        "period": "2026-Q2",
+        "reviewed_users": 28,
+        "exceptions": 0
+      },
+      "exception_codes": [
+        "PERIOD_MISMATCH"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "stale-9",
+      "actual": {
+        "system": "prod-9",
+        "period": "2026-Q2",
+        "reviewed_users": 29,
+        "exceptions": 0
+      },
+      "exception_codes": [
+        "PERIOD_MISMATCH"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "exception-0",
+      "actual": {
+        "system": "prod-0",
+        "period": "2026-Q3",
+        "reviewed_users": 20,
+        "exceptions": 1
+      },
+      "exception_codes": [
+        "OPEN_EXCEPTIONS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "exception-1",
+      "actual": {
+        "system": "prod-1",
+        "period": "2026-Q3",
+        "reviewed_users": 21,
+        "exceptions": 2
+      },
+      "exception_codes": [
+        "OPEN_EXCEPTIONS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "exception-2",
+      "actual": {
+        "system": "prod-2",
+        "period": "2026-Q3",
+        "reviewed_users": 22,
+        "exceptions": 3
+      },
+      "exception_codes": [
+        "OPEN_EXCEPTIONS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "exception-3",
+      "actual": {
+        "system": "prod-3",
+        "period": "2026-Q3",
+        "reviewed_users": 23,
+        "exceptions": 4
+      },
+      "exception_codes": [
+        "OPEN_EXCEPTIONS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "exception-4",
+      "actual": {
+        "system": "prod-4",
+        "period": "2026-Q3",
+        "reviewed_users": 24,
+        "exceptions": 5
+      },
+      "exception_codes": [
+        "OPEN_EXCEPTIONS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "exception-5",
+      "actual": {
+        "system": "prod-5",
+        "period": "2026-Q3",
+        "reviewed_users": 25,
+        "exceptions": 6
+      },
+      "exception_codes": [
+        "OPEN_EXCEPTIONS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "exception-6",
+      "actual": {
+        "system": "prod-6",
+        "period": "2026-Q3",
+        "reviewed_users": 26,
+        "exceptions": 7
+      },
+      "exception_codes": [
+        "OPEN_EXCEPTIONS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "exception-7",
+      "actual": {
+        "system": "prod-7",
+        "period": "2026-Q3",
+        "reviewed_users": 27,
+        "exceptions": 8
+      },
+      "exception_codes": [
+        "OPEN_EXCEPTIONS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "exception-8",
+      "actual": {
+        "system": "prod-8",
+        "period": "2026-Q3",
+        "reviewed_users": 28,
+        "exceptions": 9
+      },
+      "exception_codes": [
+        "OPEN_EXCEPTIONS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "exception-9",
+      "actual": {
+        "system": "prod-9",
+        "period": "2026-Q3",
+        "reviewed_users": 29,
+        "exceptions": 10
+      },
+      "exception_codes": [
+        "OPEN_EXCEPTIONS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "missing-0",
+      "actual": {
+        "system": "prod-0",
+        "period": "2026-Q3"
+      },
+      "exception_codes": [
+        "MISSING_FIELDS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "missing-1",
+      "actual": {
+        "system": "prod-1",
+        "period": "2026-Q3"
+      },
+      "exception_codes": [
+        "MISSING_FIELDS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "missing-2",
+      "actual": {
+        "system": "prod-2",
+        "period": "2026-Q3"
+      },
+      "exception_codes": [
+        "MISSING_FIELDS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "missing-3",
+      "actual": {
+        "system": "prod-3",
+        "period": "2026-Q3"
+      },
+      "exception_codes": [
+        "MISSING_FIELDS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "missing-4",
+      "actual": {
+        "system": "prod-4",
+        "period": "2026-Q3"
+      },
+      "exception_codes": [
+        "MISSING_FIELDS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "missing-5",
+      "actual": {
+        "system": "prod-5",
+        "period": "2026-Q3"
+      },
+      "exception_codes": [
+        "MISSING_FIELDS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "missing-6",
+      "actual": {
+        "system": "prod-6",
+        "period": "2026-Q3"
+      },
+      "exception_codes": [
+        "MISSING_FIELDS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "missing-7",
+      "actual": {
+        "system": "prod-7",
+        "period": "2026-Q3"
+      },
+      "exception_codes": [
+        "MISSING_FIELDS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "missing-8",
+      "actual": {
+        "system": "prod-8",
+        "period": "2026-Q3"
+      },
+      "exception_codes": [
+        "MISSING_FIELDS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "missing-9",
+      "actual": {
+        "system": "prod-9",
+        "period": "2026-Q3"
+      },
+      "exception_codes": [
+        "MISSING_FIELDS"
+      ],
+      "quarantined": false,
+      "passed": true
+    },
+    {
+      "id": "adverse-0",
+      "actual": {},
+      "exception_codes": [],
+      "quarantined": true,
+      "passed": true
+    },
+    {
+      "id": "adverse-1",
+      "actual": {},
+      "exception_codes": [],
+      "quarantined": true,
+      "passed": true
+    },
+    {
+      "id": "adverse-2",
+      "actual": {},
+      "exception_codes": [],
+      "quarantined": true,
+      "passed": true
+    },
+    {
+      "id": "adverse-3",
+      "actual": {},
+      "exception_codes": [],
+      "quarantined": true,
+      "passed": true
+    },
+    {
+      "id": "adverse-4",
+      "actual": {},
+      "exception_codes": [],
+      "quarantined": true,
+      "passed": true
+    },
+    {
+      "id": "adverse-5",
+      "actual": {},
+      "exception_codes": [],
+      "quarantined": true,
+      "passed": true
+    },
+    {
+      "id": "adverse-6",
+      "actual": {},
+      "exception_codes": [],
+      "quarantined": true,
+      "passed": true
+    },
+    {
+      "id": "adverse-7",
+      "actual": {},
+      "exception_codes": [],
+      "quarantined": true,
+      "passed": true
+    },
+    {
+      "id": "adverse-8",
+      "actual": {},
+      "exception_codes": [],
+      "quarantined": true,
+      "passed": true
+    },
+    {
+      "id": "adverse-9",
+      "actual": {},
+      "exception_codes": [],
+      "quarantined": true,
+      "passed": true
+    }
+  ],
+  "measured_at": "2026-10-03T00:07:34.864858+00:00",
+  "corpus_sha256": "70200fb067dd0c5d65b07d9afe020d4855eee6bd567215b97d28c27ceb8364c2",
+  "limitations": [
+    "Rule parser evaluated on generated structured examples; general document/LLM quality is not established.",
+    "Labels are authored scenarios, not independent human annotations of real audits.",
+    "Source attribution checks do not detect every semantic hallucination or prompt injection."
+  ]
+}

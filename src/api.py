@@ -371,3 +371,6 @@ def reset_reviews():
 from src.platform.routes import create_router
 import os
 app.include_router(create_router(demo_enabled=os.environ.get('DEMO_MODE', '0') == '1'))
+
+from src.enterprise.routes import create_router as enterprise_router
+app.include_router(enterprise_router(demo_enabled=os.environ.get('DEMO_MODE', '0') == '1'))
