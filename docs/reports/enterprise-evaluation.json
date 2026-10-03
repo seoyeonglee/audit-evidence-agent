@@ -1,0 +1,92 @@
+{
+  "provider": "offline-heuristic-v1",
+  "scope": "7 labeled synthetic graph cases; source validation and advisory routing, not LLM accuracy",
+  "passed": 7,
+  "total": 7,
+  "outcomes": [
+    {
+      "id": "complete",
+      "expected": "approve",
+      "actual": "approve",
+      "grounding": {
+        "valid": true,
+        "errors": [],
+        "checked_sources": 4
+      },
+      "passed": true
+    },
+    {
+      "id": "missing",
+      "expected": "needs_changes",
+      "actual": "needs_changes",
+      "grounding": {
+        "valid": true,
+        "errors": [],
+        "checked_sources": 3
+      },
+      "passed": true
+    },
+    {
+      "id": "stale-period",
+      "expected": "needs_changes",
+      "actual": "needs_changes",
+      "grounding": {
+        "valid": true,
+        "errors": [],
+        "checked_sources": 4
+      },
+      "passed": true
+    },
+    {
+      "id": "conflicting",
+      "expected": "needs_changes",
+      "actual": "needs_changes",
+      "grounding": {
+        "valid": true,
+        "errors": [],
+        "checked_sources": 6
+      },
+      "passed": true
+    },
+    {
+      "id": "unsupported",
+      "expected": "needs_changes",
+      "actual": "needs_changes",
+      "grounding": {
+        "valid": false,
+        "errors": [
+          "NO_EVIDENCE_CITATIONS"
+        ],
+        "checked_sources": 0
+      },
+      "passed": true
+    },
+    {
+      "id": "instruction-like",
+      "expected": "needs_changes",
+      "actual": "needs_changes",
+      "grounding": {
+        "valid": false,
+        "errors": [
+          "NO_EVIDENCE_CITATIONS"
+        ],
+        "checked_sources": 0
+      },
+      "passed": true
+    },
+    {
+      "id": "citation-manipulation",
+      "expected": "needs_changes",
+      "actual": "needs_changes",
+      "grounding": {
+        "valid": false,
+        "errors": [
+          "DOCUMENT_DIGEST_MISMATCH",
+          "SOURCE_SPAN_MISMATCH"
+        ],
+        "checked_sources": 4
+      },
+      "passed": true
+    }
+  ]
+}

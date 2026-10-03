@@ -230,6 +230,15 @@ class EvidenceService:
             return {"document_id": did, "job_id": jid, "replayed": False}
 
     def review(self, principal, request_id, version, decision, feedback):
+        with self.store.transaction(principal.tenant_id) as conn:
+            self.review_in_transaction(
+                conn, principal, request_id, version, decision, feedback
+            )
+        return self.detail(principal, request_id)
+
+    def review_in_transaction(
+        self, conn, principal, request_id, version, decision, feedback, provenance=None
+    ):
         if principal.role != "reviewer":
             raise DomainError(403, "Reviewer membership required")
         if (
@@ -237,50 +246,47 @@ class EvidenceService:
             or len(feedback) > 1000
         ):
             raise DomainError(422, "Invalid review")
-        with self.store.transaction(principal.tenant_id) as conn:
-            record = self._request(conn, principal, request_id, lock=True)
-            if record["version"] != version or record["status"] == "approved":
-                raise DomainError(409, "Record changed; reload before reviewing")
-            if record["status"] in {"awaiting_evidence", "processing"}:
-                raise DomainError(409, "Processing must finish before review")
-            authors = set(
-                conn.execute(
-                    select(documents.c.submitted_by).where(
-                        documents.c.tenant_id == principal.tenant_id,
-                        documents.c.request_id == request_id,
-                    )
-                ).scalars()
-            )
-            if principal.id in authors or principal.id == record["owner_id"]:
-                raise DomainError(
-                    403, "Evidence submitter cannot approve their own record"
-                )
-            canonical = json.loads(record["canonical"])
-            if decision == "approve" and (
-                canonical.get("exceptions") or not canonical.get("complete")
-            ):
-                raise DomainError(409, "Resolve evidence exceptions before approval")
-            status = {
-                "approve": "approved",
-                "reject": "rejected",
-                "needs_changes": "needs_changes",
-            }[decision]
+        record = self._request(conn, principal, request_id, lock=True)
+        if record["version"] != version or record["status"] == "approved":
+            raise DomainError(409, "Record changed; reload before reviewing")
+        if record["status"] in {"awaiting_evidence", "processing"}:
+            raise DomainError(409, "Processing must finish before review")
+        authors = set(
             conn.execute(
-                update(requests)
-                .where(
-                    requests.c.id == request_id,
-                    requests.c.tenant_id == principal.tenant_id,
+                select(documents.c.submitted_by).where(
+                    documents.c.tenant_id == principal.tenant_id,
+                    documents.c.request_id == request_id,
                 )
-                .values(status=status, version=version + 1, updated_at=now())
+            ).scalars()
+        )
+        if principal.id in authors or principal.id == record["owner_id"]:
+            raise DomainError(403, "Evidence submitter cannot approve their own record")
+        canonical = json.loads(record["canonical"])
+        if decision == "approve" and (
+            canonical.get("exceptions") or not canonical.get("complete")
+        ):
+            raise DomainError(409, "Resolve evidence exceptions before approval")
+        status = {
+            "approve": "approved",
+            "reject": "rejected",
+            "needs_changes": "needs_changes",
+        }[decision]
+        conn.execute(
+            update(requests)
+            .where(
+                requests.c.id == request_id,
+                requests.c.tenant_id == principal.tenant_id,
             )
-            append_event(
-                conn,
-                principal,
-                request_id,
-                "review." + decision,
-                {"version": version, "feedback": feedback},
-            )
-        return self.detail(principal, request_id)
+            .values(status=status, version=version + 1, updated_at=now())
+        )
+        append_event(
+            conn,
+            principal,
+            request_id,
+            "review." + decision,
+            {"version": version, "feedback": feedback, **(provenance or {})},
+        )
+        return {"version": version + 1, "status": status}
 
     def verify_history(self, principal, request_id):
         record = self.detail(principal, request_id)

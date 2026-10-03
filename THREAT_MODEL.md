@@ -21,3 +21,13 @@ Assets: source evidence, extracted facts, reviewer decisions, tenant membership,
 ## Before private production use
 
 Provision SSO or a token rotation/revocation workflow; separate migration/runtime credentials; configure storage encryption and retention according to actual needs; add rate limits and upload malware scanning; externalize binary objects with scoped signed URLs; send audit-chain heads to an independent immutable sink; implement supervised correction/supersession. TLS is provided by the hosting profile, but this repository does not claim encrypted local SQLite or deployed WORM storage.
+
+## Enterprise graph and desktop additions
+
+Agent identity comes from authenticated membership; run/thread IDs and checkpoint paths are server-owned. New SQL tables use tenant RLS, composite tenant foreign keys and append-only command/event triggers. Exact source checks validate digest, quote, line and citation identifiers; this proves provenance, not semantic compliance. Heuristic evidence assessment cannot execute tools or change roles.
+
+Graph checkpoint files contain frozen evidence and require a private one-host directory. SQLite file locks exclude concurrent graph writers; SQL leases fence registry writes. Production provisioning must migrate and grant the new tables under a non-bypass runtime role. The demo uses synthetic local SQLite only.
+
+Electron main owns files, dialogs and the loopback sidecar secret. Renderer routes/bodies/senders are bounded and allowlisted. An unexpected local client without the transport secret is rejected even before membership checks. The preload does not expose paths, arbitrary IPC or Node APIs. Local source files must be regular, non-symlink UTF-8 with separate byte and character limits. A renderer compromise can invoke its allowed operations and access its synthetic session; this is a reference architecture, not protection against a compromised OS account.
+
+Linux runtime captures are real Electron executions under Xvfb with --no-sandbox in a root environment. They do not establish OS sandbox enforcement, signed distribution security or Windows/macOS runtime behavior.

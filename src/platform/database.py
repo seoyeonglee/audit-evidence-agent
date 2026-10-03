@@ -48,12 +48,19 @@ class Store:
 
     def migrate(self):
         """Bootstrap schema with migration credentials, never runtime credentials."""
+        from src.enterprise import models  # noqa: F401 — register graph metadata
+
         metadata.create_all(self.engine)
         with self.engine.begin() as conn:
             if self.engine.dialect.name == "sqlite":
-                for verb in ["UPDATE", "DELETE"]:
-                    conn.exec_driver_sql(f"""CREATE TRIGGER IF NOT EXISTS audit_no_{verb.lower()}
-                    BEFORE {verb} ON audit_events BEGIN
+                for table in [
+                    "audit_events",
+                    "agent_review_commands",
+                    "agent_run_events",
+                ]:
+                    for verb in ["UPDATE", "DELETE"]:
+                        conn.exec_driver_sql(f"""CREATE TRIGGER IF NOT EXISTS {table}_no_{verb.lower()}
+                    BEFORE {verb} ON {table} BEGIN
                     SELECT RAISE(ABORT, 'audit events are append-only'); END""")
             else:
                 sql = (

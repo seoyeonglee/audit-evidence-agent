@@ -17,3 +17,12 @@ frontend/dist/
 
 frontend/test-results/
 frontend/playwright-report/
+
+graph-checkpoints/
+desktop/node_modules/
+desktop/dist/
+desktop/artifacts/
+desktop/playwright-report/
+desktop/test-results/
+frontend/playwright-report/
+*.sqlite

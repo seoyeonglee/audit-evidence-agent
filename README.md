@@ -1,5 +1,30 @@
 # Audit Evidence / Operations
 
+## Enterprise Agent Runtime + Electron
+
+A genuine persistent LangGraph workflow now extends the existing audit operations system: frozen scoped evidence → exact source validation → independent human interrupt → atomic review command → restart-safe report. Default reasoning is explicitly **offline heuristic**; no API key or paid service is required.
+
+![Actual Electron reviewed run](docs/screenshots/desktop-approved.png)
+
+| Evidence | Actual result |
+|---|---|
+| [Interrupted browser run](docs/screenshots/agent-waiting-review.png) | Persisted node events, original quotes and review waiting state |
+| [Stale approval blocked](docs/screenshots/agent-blocked-stale.png) | Source version changed; current evidence must be reprocessed |
+| [Electron restart recovery](docs/screenshots/desktop-recovered.png) | Same run restored after Electron and owned Python backend restart |
+| [Local fixture import](docs/screenshots/desktop-local-import.png) | Main-owned dialog and validated UTF-8 evidence |
+| [Browser test screen](docs/screenshots/tests-browser.png) | Actual Playwright HTML report |
+| [Electron test screen](docs/screenshots/tests-desktop.png) | Actual Electron Playwright HTML report |
+| [Backend test screen](docs/screenshots/tests-backend.png) | Actual pytest JUnit results; local PostgreSQL skips are explicit |
+
+[Verification manifest](docs/reports/enterprise-verification.json) · [Raw backend JUnit](docs/reports/enterprise-backend.xml) · [Graph corpus results](docs/reports/enterprise-evaluation.json) · [Desktop startup](docs/runbooks/desktop-startup.md) · [Graph recovery](docs/runbooks/graph-recovery.md)
+
+Use the **Agent Runtime** tab, choose a fresh synthetic scenario, start and execute the graph, inspect sources, record an independent decision, execute the resume and export its report. Approved records stay immutable; create a new request to repeat the demo.
+
+For developer desktop setup: install Python requirements, run `npm --prefix frontend ci && npm --prefix frontend run build`, then `npm --prefix desktop ci && npm --prefix desktop run dev`. Packaging instructions are in the startup runbook. The bundle requires Python; Linux is tested, Windows/macOS are untested. Public free-host persistence is ephemeral; desktop local persistence survives app restarts. Root-run evidence uses --no-sandbox and does not prove OS sandbox enforcement.
+
+Reproduce reports with `python -m pytest --junitxml=docs/reports/enterprise-backend.xml`, the browser and desktop Playwright suites, then `node scripts/capture_test_reports.mjs`. HTML reports are retained by CI; screenshots are captured from those real reports.
+
+
 [![tests](https://github.com/seoyeonglee/audit-evidence-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/seoyeonglee/audit-evidence-agent/actions/workflows/tests.yml)
 [![Live workspace](https://img.shields.io/badge/Live-Evidence_Operations-8ee1bc)](https://seoyoung-audit-evidence.onrender.com)
 [![API](https://img.shields.io/badge/API-FastAPI-009688)](https://seoyoung-audit-evidence-api.onrender.com/docs)

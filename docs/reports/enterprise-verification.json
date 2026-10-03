@@ -1,0 +1,130 @@
+{
+  "generated_at": "2026-10-03T00:16:13.246645+00:00",
+  "environment": {
+    "python": "3.12.14",
+    "node": "v24.19.0",
+    "electron": "44.5.1",
+    "os": "Linux x64 / managed root runtime + Xvfb"
+  },
+  "provider": "offline-heuristic-v1",
+  "results": {
+    "backend": {
+      "passed": 91,
+      "skipped": 13,
+      "failed": 0,
+      "source": "docs/reports/enterprise-backend.xml"
+    },
+    "browser": {
+      "startTime": "2026-10-03T00:11:27.570Z",
+      "duration": 12650.642,
+      "expected": 8,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "electron": {
+      "startTime": "2026-10-03T00:11:45.950Z",
+      "duration": 15051.984,
+      "expected": 4,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "desktop_unit": {
+      "passed": 8,
+      "failed": 0
+    },
+    "graph_corpus": {
+      "passed": 7,
+      "total": 7
+    },
+    "packaged_linux_electron": {
+      "passed": 4,
+      "failed": 0,
+      "command": "AUDIT_ELECTRON_APP=desktop/artifacts/AuditEvidence-linux-x64/AuditEvidence npm --prefix desktop run test:e2e"
+    }
+  },
+  "commands": [
+    "python -m pytest -q --junitxml=docs/reports/enterprise-backend.xml",
+    "python -m scripts.evaluate_enterprise",
+    "cd frontend && CI=1 E2E_DATABASE_URL=sqlite:////tmp/agent-web-final15.db GRAPH_CHECKPOINT_DIR=/tmp/agent-web-final15-cp npx playwright test",
+    "npm --prefix desktop test",
+    "xvfb-run -a npm --prefix desktop run test:e2e",
+    "node scripts/capture_test_reports.mjs"
+  ],
+  "screenshots": [
+    {
+      "path": "docs/screenshots/agent-approved.png",
+      "sha256": "ac27096b9e4a44ed9f72cc4ba854cf967f19ed8434906c137c6953032b07f702"
+    },
+    {
+      "path": "docs/screenshots/agent-blocked-stale.png",
+      "sha256": "cc92479293f868b8ad4b1b4d554802087ac5b2318dd257bd24a2b573d7dd829a"
+    },
+    {
+      "path": "docs/screenshots/agent-mobile.png",
+      "sha256": "3a401b8f801aa7deebf092283ef4453a9887aff7e1228a38d5f136f4b7bb14e0"
+    },
+    {
+      "path": "docs/screenshots/agent-needs-changes.png",
+      "sha256": "3eb428afe0a9b2ac3651a8d39f0199cc421ae891cfaed8377d398f558f41f4e3"
+    },
+    {
+      "path": "docs/screenshots/agent-waiting-review.png",
+      "sha256": "246846db092f9ad5b4467c072ed19a4b38982792ced656b1a39b8d53bebc2240"
+    },
+    {
+      "path": "docs/screenshots/desktop-approved.png",
+      "sha256": "fd0c3fe62e65922c19772b157ddf2bbd4ca214daff5f93cce2a9cda713ca632c"
+    },
+    {
+      "path": "docs/screenshots/desktop-local-import.png",
+      "sha256": "e0eaaeea16a0e3c2ee77777ca7b3d5f5a35baf42745c31b2b33e2a1c892e39d0"
+    },
+    {
+      "path": "docs/screenshots/desktop-recovered.png",
+      "sha256": "895b20eaf9cac8e86fbac9f3243796b556c51515baec1d54094ff8c16679a89c"
+    },
+    {
+      "path": "docs/screenshots/desktop-startup-error.png",
+      "sha256": "c2c9bfc0baa775ab159c8153e23231b0f54bf184dcdf318a58a1514b77e59b37"
+    },
+    {
+      "path": "docs/screenshots/desktop-waiting-review.png",
+      "sha256": "ec398556edf9a62c635e3d6ba5e600bc1a7129a7fb9dcb4d4a37136f8412763b"
+    },
+    {
+      "path": "docs/screenshots/tests-backend.png",
+      "sha256": "de42bdd788d6ab86438f36abc72329a0b5ead136475060fc41d209794e6a3c01"
+    },
+    {
+      "path": "docs/screenshots/tests-browser.png",
+      "sha256": "e2474e7e33ed7c586de631ce71dc000c4f6a9da2203aee390e8db2d1ba711da4"
+    },
+    {
+      "path": "docs/screenshots/tests-desktop.png",
+      "sha256": "0c86f89ba16c810fb1116cef7c75d704bea2af6705fe878257f3337c29ddd1e9"
+    }
+  ],
+  "limitations": [
+    "PostgreSQL security/concurrency tests skipped locally; real CI service required.",
+    "Root Electron tests use --no-sandbox; OS sandbox enforcement not verified.",
+    "Windows/macOS untested; developer bundle requires prepared Python.",
+    "Public free host persistence is ephemeral; local restart persistence uses desktop userData.",
+    "Heuristic graph outcomes are not a hosted-model accuracy or compliance benchmark."
+  ],
+  "independent_review": {
+    "critical": 0,
+    "important": 5,
+    "fixed": 5,
+    "deferred_minor": 0,
+    "report": "docs/enterprise-review.md"
+  },
+  "remote_integration": {
+    "status": "publication_authorized_ci_pending",
+    "destination": "seoyeonglee/audit-evidence-agent",
+    "branch": "feat/enterprise-agent-desktop",
+    "merge_and_deploy": "pending separate approval"
+  },
+  "verified_local_code_commit": "56f02e278385334303e4da79b059e06451a0378e"
+}

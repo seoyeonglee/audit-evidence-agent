@@ -14,3 +14,11 @@ The worker stores the parser version/provider beside each extraction. For an LLM
 The checked-in `eval/platform-corpus.json` has 100 authored synthetic cases: 60 valid examples over three input formats, 10 stale periods, 10 explicit exceptions, 10 missing-field cases and 10 adverse inputs. It contains 340 expected fields. `scripts.evaluate_platform` compares expected values and exception codes, measures unsupported-field and quarantine outcomes, and stores every case result plus corpus digest. The 100% result means these structured authored cases passed; it does not establish free-form extraction, OCR quality, real audit suitability or LLM hallucination rates.
 
 The existing v1 evaluation separately measures exact status, exception precision/recall, citation validity and a limited hallucination proxy. Do not combine its metrics with v2 parser metrics or claim they measure semantic model correctness. Next useful evidence: independently labeled realistic documents, adversarial prompt corpus, a true OCR provider and an actual model evaluation with recorded model/version/latency/cost.
+
+## Persistent enterprise agent
+
+`src/enterprise/graph.py` compiles an actual LangGraph StateGraph with a conditional grounding-failure route and durable human interrupt. Snapshots freeze selected evidence, canonical parser facts and synthetic control/guidance definitions. TF-IDF retrieves at most six exact field spans within that request. The default provider is offline-heuristic-v1; only heuristic reasoning is enabled in this graph. Existing optional hosted reasoning remains in RAG Lab.
+
+The human decision is a separate SQL-authorized transaction, atomically paired with an immutable resume command. Graph resume creates the report without modifying canonical approval. Each graph event records an actual node, elapsed duration and output digest. A whole-process restart restores the same thread through the official SQLite saver.
+
+`eval/enterprise-corpus.json` is a small independently labeled synthetic set, including missing/stale/conflicting/unsupported/instruction-like input and digest manipulation. `python -m scripts.evaluate_enterprise` runs the compiled graph and records each observed outcome. Seven cases are a routing/source-validation check, not a model benchmark or general compliance accuracy estimate.
