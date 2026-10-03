@@ -1,0 +1,81 @@
+{
+  "observed_at": "2026-10-03T01:37:31.862Z",
+  "repository": "seoyeonglee/audit-evidence-agent",
+  "pull_request": "https://github.com/seoyeonglee/audit-evidence-agent/pull/4",
+  "branch": "feat/enterprise-agent-desktop",
+  "source_commit": "c5d11be5e120fbdc86a901b28b7071416919f5f5",
+  "run_id": 37086624758,
+  "run_url": "https://github.com/seoyeonglee/audit-evidence-agent/actions/runs/37086624758",
+  "status": "completed",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "name": "postgres-security",
+      "id": 111098175590,
+      "conclusion": "success",
+      "url": "https://github.com/seoyeonglee/audit-evidence-agent/actions/runs/37086624758/job/111098175590",
+      "result_lines": [
+        "2026-10-03T01:36:16.0836346Z 11 passed in 0.59s",
+        "2026-10-03T01:36:19.6862691Z 2 passed in 2.31s"
+      ]
+    },
+    {
+      "name": "desktop-electron",
+      "id": 111098175710,
+      "conclusion": "success",
+      "url": "https://github.com/seoyeonglee/audit-evidence-agent/actions/runs/37086624758/job/111098175710",
+      "result_lines": [
+        "2026-10-03T01:36:07.6848313Z # tests 8",
+        "2026-10-03T01:36:07.6848983Z # pass 8",
+        "2026-10-03T01:36:07.6849313Z # fail 0",
+        "2026-10-03T01:36:37.0685620Z   4 passed (26.7s)"
+      ]
+    },
+    {
+      "name": "frontend-browser",
+      "id": 111098175716,
+      "conclusion": "success",
+      "url": "https://github.com/seoyeonglee/audit-evidence-agent/actions/runs/37086624758/job/111098175716",
+      "result_lines": [
+        "2026-10-03T01:36:40.0371995Z   8 passed (16.4s)"
+      ]
+    },
+    {
+      "name": "backend",
+      "id": 111098175757,
+      "conclusion": "success",
+      "url": "https://github.com/seoyeonglee/audit-evidence-agent/actions/runs/37086624758/job/111098175757",
+      "result_lines": [
+        "2026-10-03T01:36:05.8622449Z 91 passed, 13 skipped in 11.80s"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 11261335538,
+      "name": "actual-electron-evidence",
+      "size_bytes": 2383257,
+      "url": "https://github.com/seoyeonglee/audit-evidence-agent/actions/runs/37086624758/artifacts/11261335538"
+    },
+    {
+      "id": 11260851288,
+      "name": "backend-test-evidence",
+      "size_bytes": 5704,
+      "url": "https://github.com/seoyeonglee/audit-evidence-agent/actions/runs/37086624758/artifacts/11260851288"
+    },
+    {
+      "id": 11260846266,
+      "name": "postgres-rls-evidence",
+      "size_bytes": 1046,
+      "url": "https://github.com/seoyeonglee/audit-evidence-agent/actions/runs/37086624758/artifacts/11260846266"
+    },
+    {
+      "id": 11260093975,
+      "name": "browser-workflow-evidence",
+      "size_bytes": 6039487,
+      "url": "https://github.com/seoyeonglee/audit-evidence-agent/actions/runs/37086624758/artifacts/11260093975"
+    }
+  ],
+  "note": "These results belong to the source commit above. The following documentation-only commit records this completed run; its PR checks are recorded on GitHub.",
+  "merge_and_deploy": "pending separate approval"
+}

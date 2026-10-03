@@ -121,7 +121,11 @@
     "report": "docs/enterprise-review.md"
   },
   "remote_integration": {
-    "status": "publication_authorized_ci_pending",
+    "status": "published_ci_verified",
+    "ci_evidence": "docs/reports/enterprise-ci.json",
+    "ci_run_url": "https://github.com/seoyeonglee/audit-evidence-agent/actions/runs/37086624758",
+    "ci_source_commit": "c5d11be5e120fbdc86a901b28b7071416919f5f5",
+    "pull_request": "https://github.com/seoyeonglee/audit-evidence-agent/pull/4",
     "destination": "seoyeonglee/audit-evidence-agent",
     "branch": "feat/enterprise-agent-desktop",
     "merge_and_deploy": "pending separate approval"
