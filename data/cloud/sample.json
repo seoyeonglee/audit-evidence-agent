@@ -1,0 +1,76 @@
+{
+  "as_of": "2026-10-06",
+  "account_id": "demo-account",
+  "region": "ap-northeast-2",
+  "evidence": {
+    "iam": {
+      "account_id": "demo-account",
+      "region": "ap-northeast-2",
+      "resource": "demo-root",
+      "collected_at": "2026-09-25",
+      "source": "Synthetic IAM get-account-summary (SummaryMap normalized)",
+      "data": {
+        "AccountMFAEnabled": 1
+      }
+    },
+    "s3": {
+      "account_id": "demo-account",
+      "region": "ap-northeast-2",
+      "resource": "demo-evidence-bucket",
+      "collected_at": "2026-09-25",
+      "source": "Synthetic S3 get-public-access-block",
+      "data": {
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "IgnorePublicAcls": true,
+          "BlockPublicPolicy": false,
+          "RestrictPublicBuckets": true
+        }
+      }
+    },
+    "trail": {
+      "account_id": "demo-account",
+      "region": "ap-northeast-2",
+      "resource": "demo-trail",
+      "collected_at": "2026-01-10",
+      "source": "Synthetic normalized describe-trails + get-trail-status",
+      "data": {
+        "IsMultiRegionTrail": true,
+        "LogFileValidationEnabled": true,
+        "IsLogging": true
+      }
+    },
+    "incident": {
+      "account_id": "demo-account",
+      "region": "ap-northeast-2",
+      "resource": "demo-exercise",
+      "collected_at": "2026-09-25",
+      "source": "Synthetic review record",
+      "data": {
+        "summary": "Tabletop completed; escalation owner and response timeline require reviewer validation."
+      }
+    },
+    "backup": {
+      "account_id": "demo-account",
+      "region": "ap-northeast-2",
+      "resource": "demo-restore",
+      "collected_at": "2026-09-25",
+      "source": "Synthetic review record",
+      "data": {
+        "target_rto_hours": 4,
+        "measured_rto_hours": 5,
+        "follow_up": "Investigate recovery delay; owner review pending."
+      }
+    },
+    "vendor": {
+      "account_id": "demo-account",
+      "region": "ap-northeast-2",
+      "resource": "demo-provider",
+      "collected_at": "2026-09-25",
+      "source": "Synthetic review record",
+      "data": {
+        "summary": "Assurance report requested. Scope, period, exclusions and customer responsibilities pending review."
+      }
+    }
+  }
+}

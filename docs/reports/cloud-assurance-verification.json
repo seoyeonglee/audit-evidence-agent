@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-06",
+  "base_commit": "e2580b836e454149c307d5d50a6899438cd58b45",
+  "backend": {
+    "passed": 68,
+    "skipped": 11,
+    "skip_reason": "PostgreSQL integration requires CI database",
+    "warnings": [
+      "Upstream Starlette httpx deprecation"
+    ]
+  },
+  "cloud_backend_tests": 9,
+  "browser_full_suite": {
+    "passed": 5
+  },
+  "browser_after_review_fixes": {
+    "cloud_and_hash_reload_passed": 2
+  },
+  "frontend_build": "passed",
+  "new_python_lint": "passed",
+  "independent_review": {
+    "blocking_findings": 0,
+    "minor_findings_fixed": [
+      "Non-finite JSON values rejected before response serialization",
+      "RAG deep link preserved on reload"
+    ]
+  },
+  "data": "synthetic only",
+  "aws_live_collection": false,
+  "mapping_validation": "candidate domain overlaps; no official equivalence"
+}

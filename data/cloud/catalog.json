@@ -1,0 +1,484 @@
+{
+  "version": "2026-10-06.1",
+  "frameworks": {
+    "ISO 27001": {
+      "version": "ISO/IEC 27001:2022",
+      "source": "https://www.iso.org/standard/27001"
+    },
+    "SOC 2": {
+      "version": "2017 Trust Services Criteria (revised points of focus 2022)",
+      "source": "https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022"
+    },
+    "ISMS-P": {
+      "version": "Domain-level study; verify current assessment criteria",
+      "source": "https://isms.kisa.or.kr/"
+    },
+    "CSAP": {
+      "version": "Scheme-level study; certification tier and service scope unselected",
+      "source": "https://www.kisa.kr/1050603"
+    },
+    "CSP Safety": {
+      "version": "2025 financial-sector cloud-use guide; detailed mapping not validated",
+      "source": "https://www.fsec.or.kr/bbs/detail?bbsNo=11691&menuNo=222"
+    }
+  },
+  "notice": "Authored candidate domain crosswalk, not an official equivalence or a complete control catalog. No certification pass is inferred.",
+  "controls": [
+    {
+      "id": "CC-IAM",
+      "title": "Root account MFA",
+      "domain": "Identity & access",
+      "evidence_key": "iam",
+      "owner": "Security Engineering",
+      "priority": "high",
+      "max_age_days": 90,
+      "checks": [
+        {
+          "path": "AccountMFAEnabled",
+          "expected": 1
+        }
+      ],
+      "remediation": "Enable and verify root MFA or document the applicable centralized root-access design.",
+      "review_procedure": "Inspect root-access governance, emergency access and periodic access reviews. Root MFA alone does not establish least privilege.",
+      "scope_limit": "One account-summary root MFA flag; not IAM user MFA, role permissions or an account-wide identity assessment.",
+      "technical_source": "https://docs.aws.amazon.com/IAM/latest/APIReference/API_GetAccountSummary.html",
+      "responsibility": "Customer / shared: validate provider boundaries for the workload",
+      "mappings": [
+        {
+          "framework": "ISO 27001",
+          "domain": "Identity & access",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The identity & access objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.iso.org/standard/27001"
+        },
+        {
+          "framework": "SOC 2",
+          "domain": "Identity & access",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The identity & access objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022"
+        },
+        {
+          "framework": "ISMS-P",
+          "domain": "Identity & access",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The identity & access objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://isms.kisa.or.kr/"
+        },
+        {
+          "framework": "CSAP",
+          "domain": "Identity & access",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The identity & access objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.kisa.kr/1050603"
+        },
+        {
+          "framework": "CSP Safety",
+          "domain": "Identity & access",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The identity & access objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.fsec.or.kr/bbs/detail?bbsNo=11691&menuNo=222"
+        }
+      ]
+    },
+    {
+      "id": "CC-STORAGE",
+      "title": "Bucket public-access baseline",
+      "domain": "Data protection",
+      "evidence_key": "s3",
+      "owner": "Cloud Platform",
+      "priority": "high",
+      "max_age_days": 90,
+      "checks": [
+        {
+          "path": "PublicAccessBlockConfiguration.BlockPublicAcls",
+          "expected": true
+        },
+        {
+          "path": "PublicAccessBlockConfiguration.IgnorePublicAcls",
+          "expected": true
+        },
+        {
+          "path": "PublicAccessBlockConfiguration.BlockPublicPolicy",
+          "expected": true
+        },
+        {
+          "path": "PublicAccessBlockConfiguration.RestrictPublicBuckets",
+          "expected": true
+        }
+      ],
+      "remediation": "Review the intended access model, set the four bucket-level protections where appropriate, then recollect evidence.",
+      "review_procedure": "Inspect account/organization settings, bucket policies, access points and approved exceptions before concluding exposure.",
+      "scope_limit": "Bucket-level strict baseline only. A false flag is not proof of public exposure; higher-level controls may restrict access.",
+      "technical_source": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html",
+      "responsibility": "Customer / shared: validate provider boundaries for the workload",
+      "mappings": [
+        {
+          "framework": "ISO 27001",
+          "domain": "Data protection",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The data protection objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.iso.org/standard/27001"
+        },
+        {
+          "framework": "SOC 2",
+          "domain": "Data protection",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The data protection objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022"
+        },
+        {
+          "framework": "ISMS-P",
+          "domain": "Data protection",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The data protection objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://isms.kisa.or.kr/"
+        },
+        {
+          "framework": "CSAP",
+          "domain": "Data protection",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The data protection objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.kisa.kr/1050603"
+        },
+        {
+          "framework": "CSP Safety",
+          "domain": "Data protection",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The data protection objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.fsec.or.kr/bbs/detail?bbsNo=11691&menuNo=222"
+        }
+      ]
+    },
+    {
+      "id": "CC-LOG",
+      "title": "Trail coverage & integrity settings",
+      "domain": "Logging & monitoring",
+      "evidence_key": "trail",
+      "owner": "Cloud Platform",
+      "priority": "high",
+      "max_age_days": 90,
+      "checks": [
+        {
+          "path": "IsMultiRegionTrail",
+          "expected": true
+        },
+        {
+          "path": "LogFileValidationEnabled",
+          "expected": true
+        },
+        {
+          "path": "IsLogging",
+          "expected": true
+        }
+      ],
+      "remediation": "Validate trail coverage, logging status and integrity settings; verify delivery before recollecting.",
+      "review_procedure": "Inspect management/data event selectors, actual delivery, retention and digest validation results.",
+      "scope_limit": "One normalized trail: IsLogging comes from get-trail-status, other fields from describe-trails. Flags do not prove delivery or validated digests.",
+      "technical_source": "https://docs.aws.amazon.com/awscloudtrail/latest/APIReference/API_Trail.html",
+      "responsibility": "Customer / shared: validate provider boundaries for the workload",
+      "mappings": [
+        {
+          "framework": "ISO 27001",
+          "domain": "Logging & monitoring",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The logging & monitoring objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.iso.org/standard/27001"
+        },
+        {
+          "framework": "SOC 2",
+          "domain": "Logging & monitoring",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The logging & monitoring objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022"
+        },
+        {
+          "framework": "ISMS-P",
+          "domain": "Logging & monitoring",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The logging & monitoring objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://isms.kisa.or.kr/"
+        },
+        {
+          "framework": "CSAP",
+          "domain": "Logging & monitoring",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The logging & monitoring objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.kisa.kr/1050603"
+        },
+        {
+          "framework": "CSP Safety",
+          "domain": "Logging & monitoring",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The logging & monitoring objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.fsec.or.kr/bbs/detail?bbsNo=11691&menuNo=222"
+        }
+      ]
+    },
+    {
+      "id": "CC-KEY",
+      "title": "Customer key rotation",
+      "domain": "Cryptography",
+      "evidence_key": "kms",
+      "owner": "Security Engineering",
+      "priority": "medium",
+      "max_age_days": 90,
+      "checks": [
+        {
+          "path": "KeyRotationEnabled",
+          "expected": true
+        }
+      ],
+      "remediation": "Confirm this key supports automatic rotation; enable it or document an approved alternative lifecycle control.",
+      "review_procedure": "Inspect key type, origin, ownership, key policy, access and destruction controls.",
+      "scope_limit": "One eligible customer-managed symmetric encryption key. Automatic rotation is not supported by every KMS key type.",
+      "technical_source": "https://docs.aws.amazon.com/kms/latest/APIReference/API_GetKeyRotationStatus.html",
+      "responsibility": "Customer / shared: validate provider boundaries for the workload",
+      "mappings": [
+        {
+          "framework": "ISO 27001",
+          "domain": "Cryptography",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The cryptography objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.iso.org/standard/27001"
+        },
+        {
+          "framework": "SOC 2",
+          "domain": "Cryptography",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The cryptography objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022"
+        },
+        {
+          "framework": "ISMS-P",
+          "domain": "Cryptography",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The cryptography objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://isms.kisa.or.kr/"
+        },
+        {
+          "framework": "CSAP",
+          "domain": "Cryptography",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The cryptography objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.kisa.kr/1050603"
+        },
+        {
+          "framework": "CSP Safety",
+          "domain": "Cryptography",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The cryptography objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.fsec.or.kr/bbs/detail?bbsNo=11691&menuNo=222"
+        }
+      ]
+    },
+    {
+      "id": "CC-INCIDENT",
+      "title": "Incident response exercise",
+      "domain": "Incident management",
+      "evidence_key": "incident",
+      "owner": "Security Operations",
+      "priority": "high",
+      "max_age_days": 90,
+      "checks": [],
+      "remediation": "Run and document a scoped exercise.",
+      "review_procedure": "Review the exercise timeline, escalation contacts, response evidence and closure of lessons learned.",
+      "scope_limit": "Human review of a supplied exercise record; no automatic effectiveness decision.",
+      "technical_source": "https://aws.amazon.com/compliance/shared-responsibility-model/",
+      "responsibility": "Customer / shared: validate provider boundaries for the workload",
+      "mappings": [
+        {
+          "framework": "ISO 27001",
+          "domain": "Incident management",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The incident management objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.iso.org/standard/27001"
+        },
+        {
+          "framework": "SOC 2",
+          "domain": "Incident management",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The incident management objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022"
+        },
+        {
+          "framework": "ISMS-P",
+          "domain": "Incident management",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The incident management objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://isms.kisa.or.kr/"
+        },
+        {
+          "framework": "CSAP",
+          "domain": "Incident management",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The incident management objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.kisa.kr/1050603"
+        },
+        {
+          "framework": "CSP Safety",
+          "domain": "Incident management",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The incident management objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.fsec.or.kr/bbs/detail?bbsNo=11691&menuNo=222"
+        }
+      ]
+    },
+    {
+      "id": "CC-BACKUP",
+      "title": "Recovery validation",
+      "domain": "Business continuity",
+      "evidence_key": "backup",
+      "owner": "Service Reliability",
+      "priority": "high",
+      "max_age_days": 90,
+      "checks": [],
+      "remediation": "Perform and document a recovery test.",
+      "review_procedure": "Compare measured recovery results with approved RTO/RPO and inspect test evidence and unresolved actions.",
+      "scope_limit": "Backup configuration alone does not prove restorability.",
+      "technical_source": "https://aws.amazon.com/compliance/shared-responsibility-model/",
+      "responsibility": "Customer / shared: validate provider boundaries for the workload",
+      "mappings": [
+        {
+          "framework": "ISO 27001",
+          "domain": "Business continuity",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The business continuity objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.iso.org/standard/27001"
+        },
+        {
+          "framework": "SOC 2",
+          "domain": "Business continuity",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The business continuity objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022"
+        },
+        {
+          "framework": "ISMS-P",
+          "domain": "Business continuity",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The business continuity objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://isms.kisa.or.kr/"
+        },
+        {
+          "framework": "CSAP",
+          "domain": "Business continuity",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The business continuity objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.kisa.kr/1050603"
+        },
+        {
+          "framework": "CSP Safety",
+          "domain": "Business continuity",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The business continuity objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.fsec.or.kr/bbs/detail?bbsNo=11691&menuNo=222"
+        }
+      ]
+    },
+    {
+      "id": "CC-VENDOR",
+      "title": "Provider assurance review",
+      "domain": "Supplier governance",
+      "evidence_key": "vendor",
+      "owner": "Third-party Risk",
+      "priority": "medium",
+      "max_age_days": 90,
+      "checks": [],
+      "remediation": "Obtain current scoped assurance and document complementary customer controls.",
+      "review_procedure": "Check provider assurance scope, period, exclusions, subservice organizations, exceptions and customer responsibilities.",
+      "scope_limit": "A provider report does not certify the customer workload. CSAP and financial-sector CSP Safety are separate schemes.",
+      "technical_source": "https://www.fsec.or.kr/bbs/145",
+      "responsibility": "Customer / shared: validate provider boundaries for the workload",
+      "mappings": [
+        {
+          "framework": "ISO 27001",
+          "domain": "Supplier governance",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The supplier governance objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.iso.org/standard/27001"
+        },
+        {
+          "framework": "SOC 2",
+          "domain": "Supplier governance",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The supplier governance objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022"
+        },
+        {
+          "framework": "ISMS-P",
+          "domain": "Supplier governance",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The supplier governance objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://isms.kisa.or.kr/"
+        },
+        {
+          "framework": "CSAP",
+          "domain": "Supplier governance",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The supplier governance objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.kisa.kr/1050603"
+        },
+        {
+          "framework": "CSP Safety",
+          "domain": "Supplier governance",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The supplier governance objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.fsec.or.kr/bbs/detail?bbsNo=11691&menuNo=222"
+        }
+      ]
+    },
+    {
+      "id": "CC-RESIDENCY",
+      "title": "Data location & responsibility",
+      "domain": "Data governance",
+      "evidence_key": "residency",
+      "owner": "Privacy & Cloud Platform",
+      "priority": "high",
+      "max_age_days": 90,
+      "checks": [],
+      "remediation": "Maintain a verified data-flow and responsibility inventory.",
+      "review_procedure": "Review locations for primary data, backups, logs, support access and subprocessors against applicable obligations.",
+      "scope_limit": "Declared resource region alone does not prove all data residency obligations.",
+      "technical_source": "https://aws.amazon.com/compliance/shared-responsibility-model/",
+      "responsibility": "Customer / shared: validate provider boundaries for the workload",
+      "mappings": [
+        {
+          "framework": "ISO 27001",
+          "domain": "Data governance",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The data governance objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.iso.org/standard/27001"
+        },
+        {
+          "framework": "SOC 2",
+          "domain": "Data governance",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The data governance objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022"
+        },
+        {
+          "framework": "ISMS-P",
+          "domain": "Data governance",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The data governance objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://isms.kisa.or.kr/"
+        },
+        {
+          "framework": "CSAP",
+          "domain": "Data governance",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The data governance objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.kisa.kr/1050603"
+        },
+        {
+          "framework": "CSP Safety",
+          "domain": "Data governance",
+          "relationship": "candidate_domain_overlap",
+          "rationale": "The data governance objective may be reusable; verify the exact requirement, exclusions and evidence before acceptance.",
+          "source": "https://www.fsec.or.kr/bbs/detail?bbsNo=11691&menuNo=222"
+        }
+      ]
+    }
+  ]
+}

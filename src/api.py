@@ -371,3 +371,7 @@ def reset_reviews():
 from src.platform.routes import create_router
 import os
 app.include_router(create_router(demo_enabled=os.environ.get('DEMO_MODE', '0') == '1'))
+
+# Stateless, synthetic-only cloud evidence readiness workspace.
+from src.cloud.assurance import router as cloud_assurance_router
+app.include_router(cloud_assurance_router)

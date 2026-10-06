@@ -12,6 +12,21 @@ An engineering reference project that makes its decisions inspectable: tenant bo
 
 > All people, organizations, documents and controls are fictional. This repository demonstrates implemented engineering decisions; it does not claim real customer deployments, employer work, or historical team leadership. The public deployment explicitly runs the SQLite demo profile. PostgreSQL isolation is verified separately in CI.
 
+## Cloud Assurance: reuse evidence across control objectives
+
+The next step after evidence intake is understanding what the evidence actually supports. The **[Cloud Assurance workspace](https://seoyoung-audit-evidence.onrender.com/#cloud)** adds eight common control objectives, a versioned candidate domain crosswalk, four bounded AWS configuration checks, and an exportable review pack with source fingerprints and recommended next actions.
+
+[![Cloud Assurance: configuration evidence, control objectives and framework crosswalk](docs/screenshots/cloud-assurance.png)](https://seoyoung-audit-evidence.onrender.com/#cloud)
+
+- **Trace the result:** inspect expected versus observed settings, collection date, account/region scope, source metadata and SHA-256.
+- **Explore a gap:** change a synthetic S3 flag, refresh a stale trail snapshot, or remove an evidence field; rerun to see the result change.
+- **Prepare the review:** export owners, priorities, missing evidence and human review procedures. Suggested actions are not persisted tickets.
+- **Keep the boundaries explicit:** ISO 27001, SOC 2, ISMS-P, CSAP and financial-sector CSP Safety links are authored **candidate domain overlaps**, not validated clause equivalence or certification coverage. CSAP and CSP Safety remain distinct.
+
+The module uses synthetic normalized AWS-shaped data, makes no AWS calls, and requires no cloud credentials or spend. A matched setting means **ready for review**, never “certified.” [Methodology and primary sources](docs/cloud-assurance.md) · [Versioned catalog](data/cloud/catalog.json) · [Behavior tests](tests/test_cloud_assurance.py) · [Browser tests](frontend/tests/cloud-assurance.spec.ts).
+
+Cloud extension verification: **68 backend tests passed**, **11 PostgreSQL tests skipped locally**, **5 browser scenarios passed**, and production build passed. [Verification record](docs/reports/cloud-assurance-verification.json). The historical measurements below retain their original scope.
+
 ## See the working system
 
 [![Evidence request, verified source fields, persisted worker job and review timeline](docs/screenshots/operations.png)](https://seoyoung-audit-evidence.onrender.com)
