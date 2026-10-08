@@ -34,7 +34,7 @@ def pg_system():
         conn.execute(text("GRANT SELECT ON members TO evidence_test_app"))
         conn.execute(
             text(
-                "GRANT SELECT, INSERT, UPDATE, DELETE ON requests, documents, jobs, audit_events TO evidence_test_app"
+                "GRANT SELECT, INSERT, UPDATE, DELETE ON requests, documents, jobs, audit_events, invitations, external_sessions, document_revisions, invitation_accept_limits TO evidence_test_app"
             )
         )
         conn.execute(
@@ -228,3 +228,129 @@ def test_expired_job_recovery_and_stale_completion_do_not_deadlock(pg_system):
     r = service.detail(users["reviewer"], "REQ-BACKUP")
     assert next(j for j in r["jobs"] if j["id"] == job["id"])["status"] == "dead_letter"
     assert r["canonical"]["complete"] is False
+
+
+def test_pg_invitation_scope_and_revocation_race(pg_system):
+    from src.platform.collaboration import CollaborationService
+    from src.platform.service import DomainError
+
+    store, service, users = pg_system
+    c = CollaborationService(store)
+    invite = c.create_invitation(users["reviewer"], "REQ-ACCESS")
+
+    def accept(_):
+        try:
+            return c.accept_invitation(invite["token"], "External reviewer support")
+        except DomainError:
+            return None
+
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        accepted = [x for x in pool.map(accept, range(4)) if x]
+    assert len(accepted) == 1
+    token = accepted[0]["token"]
+    external = service.authenticate(token)
+    assert [r["id"] for r in service.list_requests(external)] == ["REQ-ACCESS"]
+    with store.transaction("demo-north") as conn:
+        assert conn.execute(text("SELECT count(*) FROM invitations")).scalar_one() == 0
+        assert (
+            conn.execute(text("SELECT count(*) FROM external_sessions")).scalar_one()
+            == 0
+        )
+    with pytest.raises(DatabaseError):
+        with store.transaction("demo-north") as conn:
+            conn.execute(
+                text(
+                    "INSERT INTO invitations (id, tenant_id, request_id, token_hash, created_by, created_at, expires_at) VALUES ('cross-tenant-invite', 'demo-acme', 'REQ-ACCESS', 'forged-hash', 'reviewer', 'now', 'later')"
+                )
+            )
+    c.revoke_invitation(users["reviewer"], "REQ-ACCESS", invite["id"])
+    with pytest.raises(DomainError):
+        service.authenticate(token)
+
+
+def test_pg_accept_and_revoke_cannot_leave_live_capability(pg_system):
+    from src.platform.collaboration import CollaborationService
+    from src.platform.service import DomainError
+
+    store, service, users = pg_system
+    c = CollaborationService(store)
+    invite = c.create_invitation(users["reviewer"], "REQ-ACCESS")
+
+    def accept():
+        try:
+            return c.accept_invitation(invite["token"], "Concurrent contributor")
+        except DomainError:
+            return None
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        a = pool.submit(accept)
+        r = pool.submit(
+            c.revoke_invitation, users["reviewer"], "REQ-ACCESS", invite["id"]
+        )
+        accepted = a.result(timeout=10)
+        assert r.result(timeout=10)["revoked"]
+    if accepted:
+        with pytest.raises(DomainError):
+            service.authenticate(accepted["token"])
+
+
+def test_pg_revision_race_is_atomic_and_tenant_isolated(pg_system):
+    import uuid
+    from src.platform.models import requests
+    from src.platform.worker import Worker
+    from src.platform.service import DomainError
+    from test_workflow import doc
+
+    store, service, users = pg_system
+    rid = "REVISION-" + uuid.uuid4().hex
+    with store.transaction("demo-acme") as conn:
+        conn.execute(
+            insert(requests).values(
+                id=rid,
+                tenant_id="demo-acme",
+                title="Revision concurrency",
+                control_id="AC-01",
+                owner_id="owner",
+                period="2026-Q3",
+                status="awaiting_evidence",
+                version=0,
+                canonical="{}",
+                updated_at="2026-10-08",
+            )
+        )
+    first = service.submit(users["owner"], rid, "first-" + rid, doc())
+    worker = Worker(store, "demo-acme")
+    for _ in range(30):
+        worker.tick()
+        if service.detail(users["reviewer"], rid)["status"] != "processing":
+            break
+
+    def replace(n):
+        try:
+            return service.submit(
+                users["owner"],
+                rid,
+                f"{rid}-replacement-{n}",
+                doc(),
+                replaces_document_id=first["document_id"],
+            )
+        except DomainError as e:
+            return e.status
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(replace, range(2)))
+    assert sum(isinstance(x, dict) for x in results) == 1
+    assert results.count(409) == 1
+    with store.transaction("demo-north") as conn:
+        assert (
+            conn.execute(text("SELECT count(*) FROM document_revisions")).scalar_one()
+            == 0
+        )
+    with store.transaction("demo-acme") as conn:
+        assert (
+            conn.execute(
+                text("SELECT count(*) FROM document_revisions WHERE request_id=:rid"),
+                {"rid": rid},
+            ).scalar_one()
+            == 1
+        )

@@ -1,7 +1,7 @@
 {
   "config": {
-    "configFile": "<repo>/frontend/playwright.config.ts",
-    "rootDir": "<repo>/frontend/tests",
+    "configFile": "/workspace/scratch/f8398ba96fef/audit-evidence-agent/frontend/playwright.config.ts",
+    "rootDir": "/workspace/scratch/f8398ba96fef/audit-evidence-agent/frontend/tests",
     "forbidOnly": false,
     "fullyParallel": false,
     "globalSetup": null,
@@ -22,7 +22,7 @@
       [
         "json",
         {
-          "outputFile": "<repo>/docs/reports/browser-tests.json"
+          "outputFile": "/workspace/scratch/f8398ba96fef/audit-evidence-agent/docs/reports/browser-tests.json"
         }
       ]
     ],
@@ -33,7 +33,7 @@
     "quiet": false,
     "projects": [
       {
-        "outputDir": "<repo>/frontend/test-results",
+        "outputDir": "/workspace/scratch/f8398ba96fef/audit-evidence-agent/frontend/test-results",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
@@ -41,7 +41,7 @@
         },
         "id": "",
         "name": "",
-        "testDir": "<repo>/frontend/tests",
+        "testDir": "/workspace/scratch/f8398ba96fef/audit-evidence-agent/frontend/tests",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -57,6 +57,121 @@
     "webServer": null
   },
   "suites": [
+    {
+      "title": "cloud-assurance.spec.ts",
+      "file": "cloud-assurance.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "cloud readiness shows evidence, separate frameworks and editable reassessment",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1113,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-08T00:22:18.313Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d7f89d0cf2208ab3699f-a7a8653646bbd068015c",
+          "file": "cloud-assurance.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "invalid input clears stale assessment and mobile layout fits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 401,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-08T00:22:19.487Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d7f89d0cf2208ab3699f-56552278cf3159a9c9e2",
+          "file": "cloud-assurance.spec.ts",
+          "line": 29,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "collaboration.spec.ts",
+      "file": "collaboration.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "external invitation, revision and independent reapproval",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3548,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-08T00:22:19.897Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "960cd46fcfcce4c1b118-a055ee64d3191a8e46c7",
+          "file": "collaboration.spec.ts",
+          "line": 6,
+          "column": 1
+        }
+      ]
+    },
     {
       "title": "operations.spec.ts",
       "file": "operations.spec.ts",
@@ -79,12 +194,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1905,
+                  "duration": 1430,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-02T10:40:13.762Z",
+                  "startTime": "2026-10-08T00:22:23.457Z",
                   "attachments": []
                 }
               ],
@@ -112,12 +227,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 622,
+                  "duration": 522,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-02T10:40:15.835Z",
+                  "startTime": "2026-10-08T00:22:24.891Z",
                   "attachments": []
                 }
               ],
@@ -145,12 +260,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 552,
+                  "duration": 476,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-02T10:40:16.464Z",
+                  "startTime": "2026-10-08T00:22:25.416Z",
                   "attachments": []
                 }
               ],
@@ -167,9 +282,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-10-02T10:40:09.217Z",
-    "duration": 7873.437,
-    "expected": 3,
+    "startTime": "2026-10-08T00:22:14.691Z",
+    "duration": 11280.32,
+    "expected": 6,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

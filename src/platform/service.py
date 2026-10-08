@@ -6,7 +6,7 @@ import uuid
 from sqlalchemy import insert, or_, select, update, text
 
 from .auth import Principal, token_hash
-from .models import documents, events, jobs, members, requests
+from .models import documents, events, jobs, members, requests, revisions
 
 
 class DomainError(Exception):
@@ -57,6 +57,10 @@ class EvidenceService:
         self.store = store
 
     def authenticate(self, token):
+        if token.startswith("external."):
+            from .collaboration import CollaborationService
+
+            return CollaborationService(self.store).authenticate(token)
         with self.store.transaction() as conn:
             row = (
                 conn.execute(
@@ -71,6 +75,8 @@ class EvidenceService:
 
     def scope(self, principal):
         clause = requests.c.tenant_id == principal.tenant_id
+        if principal.request_id:
+            return clause & (requests.c.id == principal.request_id)
         if principal.role in {"owner", "vendor"}:
             clause = clause & or_(
                 requests.c.owner_id == principal.id,
@@ -79,6 +85,9 @@ class EvidenceService:
         return clause
 
     def _request(self, conn, principal, request_id, lock=False):
+        from .collaboration import check_external
+
+        check_external(conn, principal, now())
         query = select(requests).where(
             self.scope(principal), requests.c.id == request_id
         )
@@ -90,7 +99,10 @@ class EvidenceService:
         return dict(row)
 
     def list_requests(self, principal):
+        from .collaboration import check_external
+
         with self.store.transaction(principal.tenant_id) as conn:
+            check_external(conn, principal, now())
             rows = conn.execute(
                 select(requests).where(self.scope(principal)).order_by(requests.c.id)
             ).mappings()
@@ -117,7 +129,7 @@ class EvidenceService:
                         table.c.tenant_id == principal.tenant_id,
                         table.c.request_id == request_id,
                     )
-                    .order_by(table.c.id)
+                    .order_by(table.c.created_at, table.c.id)
                 )
                 record[name] = [dict(r) for r in conn.execute(query).mappings()]
             for doc in record["documents"]:
@@ -126,9 +138,34 @@ class EvidenceService:
                 )
             for event in record["events"]:
                 event["payload"] = json.loads(event["payload"])
+            links = list(
+                conn.execute(
+                    select(revisions).where(
+                        revisions.c.tenant_id == principal.tenant_id,
+                        revisions.c.request_id == request_id,
+                    )
+                ).mappings()
+            )
+            for doc in record["documents"]:
+                doc["superseded_by"] = next(
+                    (
+                        r["replacement_id"]
+                        for r in links
+                        if r["previous_id"] == doc["id"]
+                    ),
+                    None,
+                )
+                doc["replaces_document_id"] = next(
+                    (
+                        r["previous_id"]
+                        for r in links
+                        if r["replacement_id"] == doc["id"]
+                    ),
+                    None,
+                )
             return record
 
-    def submit(self, principal, request_id, key, document):
+    def submit(self, principal, request_id, key, document, replaces_document_id=None):
         content = document.get("content", "")
         filename = document.get("filename", "")
         media_type = document.get("media_type", "")
@@ -143,7 +180,19 @@ class EvidenceService:
             raise DomainError(422, "Invalid filename")
         if not key or len(key) > 120:
             raise DomainError(422, "Idempotency-Key must contain 1–120 characters")
-        fingerprint = digest(packed({"request_id": request_id, **document}))
+        fingerprint = digest(
+            packed(
+                {
+                    "request_id": request_id,
+                    **document,
+                    **(
+                        {"replaces_document_id": replaces_document_id}
+                        if replaces_document_id
+                        else {}
+                    ),
+                }
+            )
+        )
         with self.store.transaction(principal.tenant_id) as conn:
             if self.store.engine.dialect.name == "postgresql":
                 # Key scope is tenant-wide, so locking only one request is insufficient.
@@ -151,6 +200,20 @@ class EvidenceService:
                     text("SELECT pg_advisory_xact_lock(hashtextextended(:scope, 0))"),
                     {"scope": packed([principal.tenant_id, key])},
                 )
+            if replaces_document_id:
+                from .collaboration import check_external
+
+                check_external(conn, principal, now())
+                # Worker holds job before request; use the same order.
+                conn.execute(
+                    select(jobs.c.id)
+                    .where(
+                        jobs.c.tenant_id == principal.tenant_id,
+                        jobs.c.request_id == request_id,
+                    )
+                    .order_by(jobs.c.id)
+                    .with_for_update()
+                ).all()
             record = self._request(conn, principal, request_id, lock=True)
             old = (
                 conn.execute(
@@ -180,6 +243,34 @@ class EvidenceService:
                 )
             if principal.role == "reviewer":
                 raise DomainError(403, "Reviewers cannot submit evidence")
+            if replaces_document_id:
+                pending = conn.execute(
+                    select(jobs.c.id).where(
+                        jobs.c.tenant_id == principal.tenant_id,
+                        jobs.c.request_id == request_id,
+                        jobs.c.status.in_(["queued", "running"]),
+                    )
+                ).first()
+                if pending:
+                    raise DomainError(
+                        409, "Finish pending processing before replacing evidence"
+                    )
+                source = conn.execute(
+                    select(documents.c.id).where(
+                        documents.c.tenant_id == principal.tenant_id,
+                        documents.c.request_id == request_id,
+                        documents.c.id == replaces_document_id,
+                    )
+                ).first()
+                if not source:
+                    raise DomainError(404, "Source document not found in this request")
+                if conn.execute(
+                    select(revisions.c.previous_id).where(
+                        revisions.c.tenant_id == principal.tenant_id,
+                        revisions.c.previous_id == replaces_document_id,
+                    )
+                ).first():
+                    raise DomainError(409, "Replace the latest document version")
             did, jid, timestamp = uuid.uuid4().hex, uuid.uuid4().hex, now()
             conn.execute(
                 insert(documents).values(
@@ -196,6 +287,16 @@ class EvidenceService:
                     created_at=timestamp,
                 )
             )
+            if replaces_document_id:
+                conn.execute(
+                    insert(revisions).values(
+                        tenant_id=principal.tenant_id,
+                        request_id=request_id,
+                        previous_id=replaces_document_id,
+                        replacement_id=did,
+                        created_at=timestamp,
+                    )
+                )
             conn.execute(
                 insert(jobs).values(
                     id=jid,
@@ -225,7 +326,16 @@ class EvidenceService:
                 principal,
                 request_id,
                 "document.submitted",
-                {"document_id": did, "job_id": jid, "digest": digest(content)},
+                {
+                    "document_id": did,
+                    "job_id": jid,
+                    "digest": digest(content),
+                    **(
+                        {"replaces_document_id": replaces_document_id}
+                        if replaces_document_id
+                        else {}
+                    ),
+                },
             )
             return {"document_id": did, "job_id": jid, "replayed": False}
 
@@ -279,6 +389,47 @@ class EvidenceService:
                 request_id,
                 "review." + decision,
                 {"version": version, "feedback": feedback},
+            )
+        return self.detail(principal, request_id)
+
+    def reopen(self, principal, request_id, version, reason):
+        if principal.role != "reviewer":
+            raise DomainError(403, "Reviewer membership required")
+        if not isinstance(reason, str) or not reason.strip() or len(reason) > 1000:
+            raise DomainError(422, "A reason is required to reopen approval")
+        with self.store.transaction(principal.tenant_id) as conn:
+            record = self._request(conn, principal, request_id, lock=True)
+            if record["version"] != version or record["status"] != "approved":
+                raise DomainError(
+                    409, "Only the current approved version can be reopened"
+                )
+            canonical = json.loads(record["canonical"])
+            canonical["complete"] = False
+            canonical.setdefault("exceptions", []).append(
+                {
+                    "code": "REVIEW_REOPENED",
+                    "message": "New evidence is required before reapproval",
+                }
+            )
+            conn.execute(
+                update(requests)
+                .where(
+                    requests.c.tenant_id == principal.tenant_id,
+                    requests.c.id == request_id,
+                )
+                .values(
+                    status="needs_changes",
+                    version=version + 1,
+                    canonical=packed(canonical),
+                    updated_at=now(),
+                )
+            )
+            append_event(
+                conn,
+                principal,
+                request_id,
+                "review.reopened",
+                {"previous_approved_version": version, "reason": reason.strip()},
             )
         return self.detail(principal, request_id)
 

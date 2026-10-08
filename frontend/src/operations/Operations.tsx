@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { operations } from './client';
-import type { Metrics, RecordDetail, RequestSummary, Session } from './types';
+import { operations, OperationsError } from './client';
+import type { Metrics, RecordDetail, RequestSummary, Session, Invitation } from './types';
 import './operations.css';
 
 const PERSONAS = [ ['reviewer','Reviewer · Maya Chen'], ['auditor','Auditor · Elliot Park'], ['owner','Control owner · Alex Rivera'], ['vendor','External vendor · Jordan Vale'], ['other-reviewer','Other organization · Nora Kim'] ];
@@ -8,7 +8,11 @@ const SAMPLE = 'system: production-admin\nperiod: 2026-Q3\nreviewed_users: 84\ne
 const short = (value: string) => value.slice(0, 12);
 const label = (value: string) => value.replaceAll('_', ' ').toUpperCase();
 
-export default function Operations() {
+export default function Operations({ externalSession }: { externalSession?: Session }) {
+  const [invites, setInvites] = useState<Invitation[]>([]);
+  const [inviteLink, setInviteLink] = useState('');
+  const [replacement, setReplacement] = useState('');
+  const [reopenReason, setReopenReason] = useState('');
   const [persona, setPersona] = useState('reviewer');
   const [session, setSession] = useState<Session | null>(null);
   const [requests, setRequests] = useState<RequestSummary[]>([]);
@@ -21,6 +25,13 @@ export default function Operations() {
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [accessLost, setAccessLost] = useState(false);
+  function failed(err: unknown, fallback: string) {
+    setError(err instanceof Error ? err.message : fallback);
+    if (externalSession && err instanceof OperationsError && err.status === 401) {
+      setAccessLost(true); setSession(null); setDetail(null); setRequests([]); setMetrics(null); setReports({}); setInvites([]);
+    }
+  }
   const generation = useRef(0);
 
   async function refresh(user: Session, selected?: string) {
@@ -28,26 +39,29 @@ export default function Operations() {
     const id = list.requests.find(r => r.id === selected)?.id ?? list.requests[0]?.id;
     const record = id ? await operations.detail(user.token, id) : null;
     const history = id ? await operations.verify(user.token, id) : null;
-    return { list, stats, measured, record, history };
+    const invitations = user.role === 'reviewer' && id ? await operations.invitations(user.token, id) : { invitations: [] };
+    return { list, stats, measured, record, history, invitations };
   }
   function apply(data: Awaited<ReturnType<typeof refresh>>) {
     setRequests(data.list.requests); setMetrics(data.stats); setReports(data.measured.reports);
+    setInvites(data.invitations.invitations);
     setDetail(data.record); setVerified(data.history?.valid ?? false);
   }
   useEffect(() => {
     const current = ++generation.current;
+    setInviteLink(''); setInvites([]); setReplacement(''); setReopenReason(''); setAccessLost(false);
     setSession(null); setDetail(null); setRequests([]); setMetrics(null); setError(''); setNotice(''); setBusy(true);
     void (async () => {
       try {
-        const user = await operations.session(persona);
+        const user = externalSession ?? await operations.session(persona);
         const data = await refresh(user);
         if (generation.current !== current) return;
         setSession(user); apply(data);
-      } catch (err) { if (generation.current === current) setError(err instanceof Error ? err.message : 'Connection unavailable'); }
+      } catch (err) { if (generation.current === current) failed(err, 'Connection unavailable'); }
       finally { if (generation.current === current) setBusy(false); }
     })();
     return () => { generation.current++; };
-  }, [persona]);
+  }, [persona, externalSession]);
 
   async function action(fn: (user: Session, record: RecordDetail) => Promise<string>) {
     if (!session || !detail || busy) return;
@@ -58,17 +72,18 @@ export default function Operations() {
       const data = await refresh(session, detail.id);
       if (current !== generation.current) return;
       apply(data); setNotice(message);
-    } catch (err) { if (current === generation.current) setError(err instanceof Error ? err.message : 'Action failed'); }
+    } catch (err) { if (current === generation.current) failed(err, 'Action failed'); }
     finally { if (current === generation.current) setBusy(false); }
   }
   async function choose(id: string) {
     if (!session || busy) return;
-    const current = generation.current; setBusy(true); setError('');
+    const current = generation.current; setBusy(true); setError(''); setInviteLink(''); setReplacement('');
     try {
       const [record, history] = await Promise.all([operations.detail(session.token, id), operations.verify(session.token, id)]);
       if (current !== generation.current) return;
-      setDetail(record); setVerified(history.valid); setFeedback(''); setNotice('');
-    } catch (err) { if (current === generation.current) setError(err instanceof Error ? err.message : 'Load failed'); }
+      setDetail(record); setVerified(history.valid);
+      if (session.role === 'reviewer') setInvites((await operations.invitations(session.token, id)).invitations); setFeedback(''); setNotice('');
+    } catch (err) { if (current === generation.current) failed(err, 'Load failed'); }
     finally { if (current === generation.current) setBusy(false); }
   }
 
@@ -78,10 +93,11 @@ export default function Operations() {
   const canReview = session?.role === 'reviewer';
   const evaluation = reports.evaluation;
   const benchmark = reports.benchmark;
+  if (accessLost) return <main className="ops-invite-page"><section className="ops-card"><h1>Access unavailable</h1><p role="status">{error}</p><p>Ask your reviewer for a new invitation to continue.</p></section></main>;
   return <div className="ops-shell">
     <header className="ops-topbar">
       <div className="ops-brand"><span className="ops-mark">EO</span><div><strong>EVIDENCE / OPS</strong><small>Auditable work. Verifiable outcomes.</small></div></div>
-      <div className="ops-session"><span className="ops-demo">SYNTHETIC WORKSPACE</span><label>Demo persona<select aria-label="Demo persona" value={persona} onChange={e => setPersona(e.target.value)}>{PERSONAS.map(([id,name]) => <option value={id} key={id}>{name}</option>)}</select></label></div>
+      <div className="ops-session"><span className="ops-demo">SYNTHETIC WORKSPACE</span>{!externalSession && <label>Demo persona<select aria-label="Demo persona" value={persona} onChange={e => setPersona(e.target.value)}>{PERSONAS.map(([id,name]) => <option value={id} key={id}>{name}</option>)}</select></label>}<button className="ops-secondary" disabled={busy} onClick={() => void action(async () => 'Workspace refreshed.')}>Refresh workspace</button></div>
     </header>
     <section className="ops-hero">
       <div><span className="ops-eyebrow">EVIDENCE OPERATIONS PLATFORM / V3</span><h1>Evidence operations</h1><p>From scattered documents to a single, source-backed record.<br/>Every field has a source. Every decision has an owner.</p></div>
@@ -108,8 +124,11 @@ export default function Operations() {
           {exceptions.length > 0 && <div className="ops-exceptions">{exceptions.map((e, i) => <div key={i}><strong>{e.code}</strong><p>{e.message}</p></div>)}</div>}
           <div className="ops-record-footer"><span>STRUCTURED EXTRACTION + SCHEMA VALIDATION</span><span>{detail?.canonical.complete ? '✓ Complete & exception-free' : 'Human verification pending'}</span></div>
         </article>
-        {canSubmit && <article className="ops-card ops-intake"><div className="ops-card-heading"><span className="ops-eyebrow">EVIDENCE INTAKE</span><h2>Submit source evidence</h2><p>Sample data only. The submission creates a persisted document and queued job atomically.</p></div><textarea aria-label="Evidence content" value={content} onChange={e => setContent(e.target.value)} rows={5}/><div className="ops-intake-actions"><label className="ops-file">Choose text file<input type="file" accept=".txt" onChange={e => { const file = e.target.files?.[0]; if (file) { if (file.size > 200000) setError('Text file exceeds 200KB'); else void file.text().then(setContent); } }}/></label><button className="ops-primary" disabled={busy || !content.trim()} onClick={() => void action(async (u,r) => { await operations.submit(u.token,r.id,content); return 'Evidence accepted. A durable processing job was queued.'; })}>Submit sample evidence</button></div></article>}
+        {canSubmit && <article className="ops-card ops-intake"><div className="ops-card-heading"><span className="ops-eyebrow">EVIDENCE INTAKE</span><h2>Submit source evidence</h2><p>Sample data only. The submission creates a persisted document and queued job atomically.</p></div><label className="ops-replace">Document to replace<select aria-label="Document to replace" value={replacement} onChange={e => setReplacement(e.target.value)}><option value="">Add a new source</option>{detail?.documents.filter(d => !d.superseded_by).map(d => <option key={d.id} value={d.id}>{d.filename} · {short(d.id)}</option>)}</select></label><textarea aria-label="Evidence content" value={content} onChange={e => setContent(e.target.value)} rows={5}/><div className="ops-intake-actions"><label className="ops-file">Choose text file<input type="file" accept=".txt" onChange={e => { const file = e.target.files?.[0]; if (file) { if (file.size > 200000) setError('Text file exceeds 200KB'); else void file.text().then(setContent); } }}/></label><button className="ops-primary" disabled={busy || !content.trim()} onClick={() => void action(async (u,r) => { await operations.submit(u.token,r.id,content, 'evidence.txt', replacement || undefined); setReplacement(''); return 'Evidence accepted. A durable processing job was queued.'; })}>Submit sample evidence</button></div></article>}
         {canReview && <article className="ops-card ops-review"><div className="ops-card-heading"><span className="ops-eyebrow">HUMAN IN THE LOOP</span><h2>Review & sign off</h2><p>Approval checks record version, source sufficiency and separation of duties.</p></div><textarea aria-label="Reviewer feedback" placeholder="Document your review rationale…" value={feedback} onChange={e => setFeedback(e.target.value)} rows={2}/><div className="ops-review-actions">{[['approve','Approve record'],['needs_changes','Request changes'],['reject','Reject record']].map(([decision,text]) => <button key={decision} className={decision === 'approve' ? 'ops-primary' : 'ops-secondary'} disabled={busy || detail?.status === 'approved' || ['processing','awaiting_evidence'].includes(detail?.status ?? '') || (decision === 'approve' && !detail?.canonical.complete)} onClick={() => void action(async (u,r) => { const reviewed = await operations.review(u.token,r.id,r.version,decision,feedback); return `Review recorded: ${reviewed.status}.`; })}>{text}</button>)}</div></article>}
+        {canReview && <article className="ops-card ops-collaboration"><div className="ops-card-heading"><span className="ops-eyebrow">EXTERNAL COLLABORATION</span><h2>Invite a contributor</h2><p>A 24-hour link grants submission access to this request only. Share it privately; no email is sent.</p></div><button className="ops-primary" disabled={busy} onClick={() => void action(async (u,r) => { const invite = await operations.invite(u.token,r.id); setInviteLink(`${location.origin}${location.pathname}#invite=${invite.token}`); return 'Invitation created. Copy the link for your contributor.'; })}>Create invitation</button>{inviteLink && <label className="ops-link-label">Invitation link<input aria-label="Invitation link" value={inviteLink} readOnly onFocus={e => e.target.select()}/><button className="ops-secondary" onClick={() => void navigator.clipboard.writeText(inviteLink).then(() => setNotice('Invitation link copied.')).catch(() => setNotice('Select and copy the invitation link.'))}>Copy link</button></label>}<div className="ops-invitation-list">{invites.map(i => <div key={i.id}><span>{i.revoked_at ? 'Revoked' : Date.parse(i.expires_at) <= Date.now() ? 'Expired' : i.accepted_at ? 'Accepted' : 'Awaiting acceptance'}</span><small>Expires {new Date(i.expires_at).toLocaleString()}</small>{!i.revoked_at && <button className="ops-secondary" disabled={busy} onClick={() => void action(async (u,r) => { await operations.revoke(u.token,r.id,i.id); setInviteLink(''); return 'Invitation and its session revoked.'; })}>Revoke invitation</button>}</div>)}</div></article>}
+        {canReview && detail?.status === 'approved' && <article className="ops-card ops-reopen"><div className="ops-card-heading"><span className="ops-eyebrow">VERSIONED APPROVAL</span><h2>Reopen an approved record</h2><p>The prior approval stays in history. New evidence and another review are required.</p></div><textarea aria-label="Reopen reason" placeholder="Why does this record need another review?" value={reopenReason} onChange={e => setReopenReason(e.target.value)}/><button className="ops-secondary" disabled={busy || !reopenReason.trim()} onClick={() => void action(async (u,r) => { await operations.reopen(u.token,r.id,r.version,reopenReason); setReopenReason(''); return 'Record reopened. Submit new evidence before reapproval.'; })}>Reopen for review</button></article>}
+        {!!detail?.documents.length && <article className="ops-card ops-versions"><div className="ops-card-heading"><span className="ops-eyebrow">IMMUTABLE SOURCES</span><h2>Document versions</h2></div>{detail.documents.map(d => { const previous = detail.documents.find(p => p.id === d.replaces_document_id); const changes = Object.entries(d.extraction?.fields ?? {}).filter(([key,f]) => previous?.extraction?.fields?.[key]?.value !== f.value); return <div className="ops-version" key={d.id}><strong>{d.filename}</strong><span className="ops-badge">{d.superseded_by ? 'Superseded' : 'Current source'}</span><code>{short(d.id)} · SHA-256 {short(d.digest)}</code><small>Submitted by {d.submitted_by} · {new Date(d.created_at).toLocaleString()}</small>{previous && <div className="ops-version-diff"><small>Replaces {short(previous.id)}</small>{changes.map(([key,f]) => <p key={key}>{key}: <del>{String(previous.extraction?.fields?.[key]?.value ?? '—')}</del> → <strong>{String(f.value)}</strong></p>)}{Object.keys(previous.extraction?.fields ?? {}).filter(key => !d.extraction?.fields?.[key]).map(key => <p key={key}>{key}: <del>{String(previous.extraction?.fields?.[key]?.value)}</del> → removed</p>)}</div>}</div>; })}</article>}
         <article className="ops-card ops-timeline"><div className="ops-card-heading"><span className="ops-eyebrow">TRACEABILITY</span><h2>Decision timeline</h2><span className="ops-muted">Append-only event log · SHA-256 chain</span></div>{detail?.events.length ? detail.events.map(e => <div className="ops-event" key={e.id}><span className="ops-event-node"/><div><strong>{e.event_type}</strong><small>{e.actor} · {new Date(e.created_at).toLocaleTimeString('en-US', { hour12: false })}</small><code>{short(e.event_hash)}…</code></div></div>) : <p className="ops-muted ops-no-events">Events appear when evidence is submitted and reviewed.</p>}</article>
       </section>
       <aside className="ops-system">

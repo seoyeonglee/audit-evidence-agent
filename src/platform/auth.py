@@ -8,6 +8,8 @@ class Principal:
     tenant_id: str
     role: str
     name: str
+    request_id: str | None = None
+    session_id: str | None = None
 
 
 def token_hash(token: str) -> str:

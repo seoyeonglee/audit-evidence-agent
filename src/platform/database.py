@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from pathlib import Path
 
-from sqlalchemy import create_engine, event, text
+from sqlalchemy import create_engine, event, text, inspect
 
 from .models import metadata
 
@@ -48,6 +48,14 @@ class Store:
 
     def migrate(self):
         """Bootstrap schema with migration credentials, never runtime credentials."""
+        # Existing installations need the unique parent index before creating revision FKs.
+        if inspect(self.engine).has_table("documents"):
+            from .models import documents
+
+            index = next(
+                i for i in documents.indexes if i.name == "uq_document_request_identity"
+            )
+            index.create(self.engine, checkfirst=True)
         metadata.create_all(self.engine)
         with self.engine.begin() as conn:
             if self.engine.dialect.name == "sqlite":

@@ -14,7 +14,7 @@ from sqlalchemy import and_, or_, select, update
 from .auth import Principal
 from .database import Store
 from .extraction import PermanentError, canonical_record, extract
-from .models import documents, jobs, requests
+from .models import documents, jobs, requests, revisions
 from .service import append_event, packed
 
 logger = logging.getLogger("evidence.worker")
@@ -152,6 +152,11 @@ class Worker:
                     documents.c.request_id == job["request_id"],
                     documents.c.tenant_id == self.tenant_id,
                     documents.c.extraction.is_not(None),
+                    documents.c.id.not_in(
+                        select(revisions.c.previous_id).where(
+                            revisions.c.tenant_id == self.tenant_id
+                        )
+                    ),
                 )
                 .order_by(documents.c.created_at, documents.c.id)
             ).scalars()
@@ -166,6 +171,11 @@ class Worker:
                         jobs.c.tenant_id == self.tenant_id,
                         jobs.c.request_id == job["request_id"],
                         jobs.c.status != "succeeded",
+                        jobs.c.document_id.not_in(
+                            select(revisions.c.previous_id).where(
+                                revisions.c.tenant_id == self.tenant_id
+                            )
+                        ),
                     )
                 )
                 .scalars()

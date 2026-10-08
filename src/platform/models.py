@@ -101,3 +101,75 @@ events = Table(
 Index("ix_request_tenant", requests.c.tenant_id, requests.c.updated_at)
 Index("ix_job_claim", jobs.c.tenant_id, jobs.c.status, jobs.c.available_at)
 Index("ix_event_lineage", events.c.tenant_id, events.c.request_id, events.c.id)
+
+invitations = Table(
+    "invitations",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("tenant_id", String, nullable=False),
+    Column("request_id", String, nullable=False),
+    Column("token_hash", String, unique=True, nullable=False),
+    Column("created_by", String, nullable=False),
+    Column("created_at", String, nullable=False),
+    Column("expires_at", String, nullable=False),
+    Column("accepted_at", String),
+    Column("revoked_at", String),
+    UniqueConstraint("tenant_id", "request_id", "id"),
+    ForeignKeyConstraint(
+        ["tenant_id", "request_id"], ["requests.tenant_id", "requests.id"]
+    ),
+)
+external_sessions = Table(
+    "external_sessions",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("tenant_id", String, nullable=False),
+    Column("request_id", String, nullable=False),
+    Column("invitation_id", String, nullable=False),
+    Column("name", String, nullable=False),
+    Column("token_hash", String, unique=True, nullable=False),
+    Column("created_at", String, nullable=False),
+    UniqueConstraint("invitation_id"),
+    ForeignKeyConstraint(
+        ["tenant_id", "request_id", "invitation_id"],
+        ["invitations.tenant_id", "invitations.request_id", "invitations.id"],
+    ),
+)
+
+revisions = Table(
+    "document_revisions",
+    metadata,
+    Column("tenant_id", String, nullable=False),
+    Column("request_id", String, nullable=False),
+    Column("previous_id", String, primary_key=True),
+    Column("replacement_id", String, unique=True, nullable=False),
+    Column("created_at", String, nullable=False),
+    ForeignKeyConstraint(
+        ["tenant_id", "request_id"], ["requests.tenant_id", "requests.id"]
+    ),
+    ForeignKeyConstraint(
+        ["tenant_id", "request_id", "previous_id"],
+        ["documents.tenant_id", "documents.request_id", "documents.id"],
+    ),
+    ForeignKeyConstraint(
+        ["tenant_id", "request_id", "replacement_id"],
+        ["documents.tenant_id", "documents.request_id", "documents.id"],
+    ),
+    CheckConstraint("previous_id != replacement_id"),
+)
+
+accept_limits = Table(
+    "invitation_accept_limits",
+    metadata,
+    Column("client_hash", String, primary_key=True),
+    Column("window", Integer, nullable=False),
+    Column("attempts", Integer, nullable=False),
+)
+
+Index(
+    "uq_document_request_identity",
+    documents.c.tenant_id,
+    documents.c.request_id,
+    documents.c.id,
+    unique=True,
+)
