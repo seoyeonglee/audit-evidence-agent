@@ -5,7 +5,7 @@ DROP TRIGGER IF EXISTS immutable_audit ON audit_events;
 CREATE TRIGGER immutable_audit BEFORE UPDATE OR DELETE ON audit_events
 FOR EACH ROW EXECUTE FUNCTION forbid_audit_mutation();
 DO $$ DECLARE t text; BEGIN
-  FOREACH t IN ARRAY ARRAY['requests','documents','jobs','audit_events'] LOOP
+  FOREACH t IN ARRAY ARRAY['requests','documents','jobs','audit_events','invitations','external_sessions','document_revisions'] LOOP
     EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
     EXECUTE format('ALTER TABLE %I FORCE ROW LEVEL SECURITY', t);
     EXECUTE format('DROP POLICY IF EXISTS tenant_boundary ON %I', t);

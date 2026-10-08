@@ -6,7 +6,7 @@ import json
 from threading import Lock
 from typing import Literal
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 from sqlalchemy import select
@@ -16,6 +16,7 @@ from .models import jobs
 from .seed import PERSONAS, seed_demo
 from .service import DomainError, EvidenceService
 from .worker import Worker
+from .collaboration import CollaborationService
 
 
 _runtime_lock = Lock()
@@ -54,12 +55,27 @@ class DocumentInput(BaseModel):
     filename: str = Field(min_length=1, max_length=120)
     media_type: Literal["text/plain", "text/csv", "application/json"]
     content: str = Field(min_length=1, max_length=200000)
+    replaces_document_id: str | None = Field(default=None, min_length=1, max_length=64)
 
 
 class ReviewInput(BaseModel):
     version: int = Field(ge=0)
     decision: Literal["approve", "reject", "needs_changes"]
     feedback: str = Field(default="", max_length=1000)
+
+
+class InvitationInput(BaseModel):
+    ttl_hours: int = Field(default=24, ge=1, le=168)
+
+
+class AcceptInput(BaseModel):
+    token: str = Field(min_length=1, max_length=512)
+    name: str = Field(min_length=1, max_length=120)
+
+
+class ReopenInput(BaseModel):
+    version: int = Field(ge=0)
+    reason: str = Field(min_length=1, max_length=1000)
 
 
 class DemoSession(BaseModel):
@@ -97,6 +113,8 @@ def create_router(store=None, demo_tokens=None, demo_enabled=False):
             "tenant_id": user.tenant_id,
             "role": user.role,
             "demo": bool(context()[1]),
+            "external": bool(user.session_id),
+            "request_id": user.request_id,
         }
 
     @router.get("/requests")
@@ -116,7 +134,11 @@ def create_router(store=None, demo_tokens=None, demo_enabled=False):
     ):
         return checked(
             lambda: service().submit(
-                user, request_id, idempotency_key, payload.model_dump()
+                user,
+                request_id,
+                idempotency_key,
+                payload.model_dump(exclude={"replaces_document_id"}),
+                payload.replaces_document_id,
             )
         )
 
@@ -126,6 +148,57 @@ def create_router(store=None, demo_tokens=None, demo_enabled=False):
             lambda: service().review(
                 user, request_id, payload.version, payload.decision, payload.feedback
             )
+        )
+
+    @router.post("/requests/{request_id}/invitations", status_code=201)
+    def invite(
+        request_id: str,
+        payload: InvitationInput,
+        response: Response,
+        user=Depends(identity),
+    ):
+        response.headers["Cache-Control"] = "no-store"
+        return checked(
+            lambda: CollaborationService(context()[0]).create_invitation(
+                user, request_id, payload.ttl_hours
+            )
+        )
+
+    @router.get("/requests/{request_id}/invitations")
+    def invitations_list(request_id: str, user=Depends(identity)):
+        return {
+            "invitations": checked(
+                lambda: CollaborationService(context()[0]).list_invitations(
+                    user, request_id
+                )
+            )
+        }
+
+    @router.post("/requests/{request_id}/invitations/{invitation_id}/revoke")
+    def revoke(request_id: str, invitation_id: str, user=Depends(identity)):
+        return checked(
+            lambda: CollaborationService(context()[0]).revoke_invitation(
+                user, request_id, invitation_id
+            )
+        )
+
+    @router.post("/invitations/accept")
+    def accept(payload: AcceptInput, request: Request, response: Response):
+        response.headers["Cache-Control"] = "no-store"
+        collaboration = CollaborationService(context()[0])
+        checked(
+            lambda: collaboration.limit_acceptance(
+                request.client.host if request.client else "unknown"
+            )
+        )
+        return checked(
+            lambda: collaboration.accept_invitation(payload.token, payload.name)
+        )
+
+    @router.post("/requests/{request_id}/reopen")
+    def reopen(request_id: str, payload: ReopenInput, user=Depends(identity)):
+        return checked(
+            lambda: service().reopen(user, request_id, payload.version, payload.reason)
         )
 
     @router.get("/requests/{request_id}/history/verify")
